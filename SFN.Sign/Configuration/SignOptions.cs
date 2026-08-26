@@ -6,6 +6,11 @@ namespace SFN.Sign.Configuration;
 public sealed class SignOptions
 {
     /// <summary>
+    /// Строка подключения к базе данных.
+    /// </summary>
+    public string ConnectionString { get; set; } = string.Empty;
+
+    /// <summary>
     /// Имя схемы базы данных.
     /// </summary>
     public string Schema { get; set; } = "sign";
@@ -69,5 +74,4 @@ public sealed class SignOptions
     /// Размер соли в байтах.
     /// </summary>
     public int SaltSize { get; set; } = 16;
-
 }
