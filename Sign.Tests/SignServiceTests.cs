@@ -34,8 +34,8 @@ public sealed class SignServiceTests
         Assert.Equal("+79990000001", lastMessage.Recipient);
         Assert.Contains("11111111-1111-1111-1111-111111111111", lastMessage.Body);
         Assert.Equal(4, sentCode.Length);
-        Assert.NotEqual(sentCode, request.Code!.CodeHash);
-        Assert.False(request.Code.IsUsed);
+        Assert.NotEqual(sentCode, request.SignCode!.CodeHash);
+        Assert.False(request.SignCode.IsUsed);
         Assert.Equal(2, request.Attempts.Count);
         Assert.Contains(request.Attempts, x => x.Type == SignAttemptType.Created);
         Assert.Contains(request.Attempts, x => x.Type == SignAttemptType.Sent);
@@ -137,7 +137,7 @@ public sealed class SignServiceTests
 
         var requestBeforeResend = await scope.GetRequestAsync(startResult.RequestId);
 
-        var oldSalt = requestBeforeResend.Code!.CodeSalt;
+        var oldSalt = requestBeforeResend.SignCode!.CodeSalt;
 
         await scope.MoveSendAttemptsToPastAsync(startResult.RequestId, scope.Options.ResendCooldown.Add(TimeSpan.FromSeconds(5)));
 
@@ -151,7 +151,7 @@ public sealed class SignServiceTests
         Assert.True(resendResult.IsSuccess);
         Assert.Equal(2, scope.EmailSender.SentMessages.Count);
         Assert.Equal(2, requestAfterResend.SendAttemptsUsed);
-        Assert.NotEqual(oldSalt, requestAfterResend.Code!.CodeSalt);
+        Assert.NotEqual(oldSalt, requestAfterResend.SignCode!.CodeSalt);
         Assert.Contains(requestAfterResend.Attempts, x => x.Type == SignAttemptType.Resent);
     }
 
@@ -213,7 +213,7 @@ public sealed class SignServiceTests
         Assert.True(verificationResult.IsSuccess);
         Assert.Equal(SignRequestStatus.Signed, verificationResult.Status);
         Assert.Equal(SignRequestStatus.Signed, request.Status);
-        Assert.True(request.Code!.IsUsed);
+        Assert.True(request.SignCode!.IsUsed);
         Assert.NotNull(request.SignedAtUtc);
         Assert.Contains(request.Attempts, x => x.Type == SignAttemptType.VerifySucceeded);
     }

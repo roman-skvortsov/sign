@@ -13,7 +13,7 @@ public sealed class SignCode
     /// <summary>
     /// Идентификатор запроса на подписание.
     /// </summary>
-    public Guid RequestId { get; set; }
+    public Guid SignRequestId { get; set; }
 
     /// <summary>
     /// Хеш кода.
@@ -43,5 +43,5 @@ public sealed class SignCode
     /// <summary>
     /// Связанный запрос на подписание.
     /// </summary>
-    public SignRequest Request { get; set; } = null!;
+    public SignRequest SignRequest { get; set; } = null!;
 }

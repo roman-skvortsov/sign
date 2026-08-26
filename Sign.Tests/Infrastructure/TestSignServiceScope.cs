@@ -184,8 +184,8 @@ public sealed class TestSignServiceScope : IAsyncDisposable
     {
         await using var dbContext = CreateDbContext();
 
-        return await dbContext.Requests
-            .Include(x => x.Code)
+        return await dbContext.SignRequests
+            .Include(x => x.SignCode)
             .Include(x => x.Attempts)
             .SingleAsync(x => x.Id == requestId);
     }
@@ -197,7 +197,7 @@ public sealed class TestSignServiceScope : IAsyncDisposable
     public async Task<int> CountRequestsAsync()
     {
         await using var dbContext = CreateDbContext();
-        return await dbContext.Requests.CountAsync();
+        return await dbContext.SignRequests.CountAsync();
     }
 
     /// <summary>
@@ -210,8 +210,8 @@ public sealed class TestSignServiceScope : IAsyncDisposable
     {
         await using var dbContext = CreateDbContext();
 
-        var attempts = await dbContext.Attempts
-            .Where(x => x.RequestId == requestId && (x.Type == SignAttemptType.Sent || x.Type == SignAttemptType.Resent || x.Type == SignAttemptType.SendFailed))
+        var attempts = await dbContext.SignAttempts
+            .Where(x => x.SignRequestId == requestId && (x.Type == SignAttemptType.Sent || x.Type == SignAttemptType.Resent || x.Type == SignAttemptType.SendFailed))
             .ToListAsync();
 
         foreach (var attempt in attempts)

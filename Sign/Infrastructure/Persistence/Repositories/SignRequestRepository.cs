@@ -25,8 +25,8 @@ public sealed class SignRequestRepository : ISignRequestRepository
     /// <inheritdoc />
     public Task<SignRequest?> GetByIdWithCodeAndAttemptsAsync(Guid requestId, CancellationToken cancellationToken = default)
     {
-        return _dbContext.Requests
-            .Include(x => x.Code)
+        return _dbContext.SignRequests
+            .Include(x => x.SignCode)
             .Include(x => x.Attempts)
             .SingleOrDefaultAsync(x => x.Id == requestId, cancellationToken);
     }
@@ -40,8 +40,8 @@ public sealed class SignRequestRepository : ISignRequestRepository
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(recipient);
 
-        return _dbContext.Requests
-            .Include(x => x.Code)
+        return _dbContext.SignRequests
+            .Include(x => x.SignCode)
             .Include(x => x.Attempts)
             .SingleOrDefaultAsync(
                 x => x.DocumentSignId == documentSignId

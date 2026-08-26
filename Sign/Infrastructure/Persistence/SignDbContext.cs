@@ -26,17 +26,17 @@ public sealed class SignDbContext : DbContext
     /// <summary>
     /// Запросы на подписание.
     /// </summary>
-    public DbSet<SignRequest> Requests => Set<SignRequest>();
+    public DbSet<SignRequest> SignRequests => Set<SignRequest>();
 
     /// <summary>
     /// Коды подтверждения.
     /// </summary>
-    public DbSet<SignCode> Codes => Set<SignCode>();
+    public DbSet<SignCode> SignCodes => Set<SignCode>();
 
     /// <summary>
     /// Записи о действиях и попытках.
     /// </summary>
-    public DbSet<SignAttempt> Attempts => Set<SignAttempt>();
+    public DbSet<SignAttempt> SignAttempts => Set<SignAttempt>();
 
     /// <summary>
     /// Шаблоны сообщений.
@@ -75,12 +75,12 @@ public sealed class SignDbContext : DbContext
             builder.Property(x => x.SendAttemptsUsed).IsRequired();
             builder.HasIndex(x => x.DocumentSignId);
             builder.HasIndex(x => x.Status);
-            builder.HasOne(x => x.Code)
-                .WithOne(x => x.Request)
-                .HasForeignKey<SignCode>(x => x.RequestId);
+            builder.HasOne(x => x.SignCode)
+                .WithOne(x => x.SignRequest)
+                .HasForeignKey<SignCode>(x => x.SignRequestId);
             builder.HasMany(x => x.Attempts)
-                .WithOne(x => x.Request)
-                .HasForeignKey(x => x.RequestId);
+                .WithOne(x => x.SignRequest)
+                .HasForeignKey(x => x.SignRequestId);
         });
 
         modelBuilder.Entity<SignCode>(builder =>
@@ -92,7 +92,7 @@ public sealed class SignDbContext : DbContext
             builder.Property(x => x.CreatedAtUtc).IsRequired();
             builder.Property(x => x.ExpiresAtUtc).IsRequired();
             builder.Property(x => x.IsUsed).IsRequired();
-            builder.HasIndex(x => new { x.RequestId, x.IsUsed });
+            builder.HasIndex(x => new { x.SignRequestId, x.IsUsed });
         });
 
         modelBuilder.Entity<SignAttempt>(builder =>
@@ -102,7 +102,7 @@ public sealed class SignDbContext : DbContext
             builder.Property(x => x.Type).IsRequired();
             builder.Property(x => x.Details).HasMaxLength(2000);
             builder.Property(x => x.CreatedAtUtc).IsRequired();
-            builder.HasIndex(x => x.RequestId);
+            builder.HasIndex(x => x.SignRequestId);
         });
 
         modelBuilder.Entity<MessageTemplate>(builder =>

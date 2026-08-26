@@ -15,7 +15,7 @@ public sealed class SignAttempt
     /// <summary>
     /// Идентификатор запроса на подписание.
     /// </summary>
-    public Guid RequestId { get; set; }
+    public Guid SignRequestId { get; set; }
 
     /// <summary>
     /// Тип действия или попытки.
@@ -35,5 +35,5 @@ public sealed class SignAttempt
     /// <summary>
     /// Связанный запрос на подписание.
     /// </summary>
-    public SignRequest Request { get; set; } = null!;
+    public SignRequest SignRequest { get; set; } = null!;
 }

@@ -97,7 +97,7 @@ public sealed class SignService : ISignService
             ExpiresAtUtc = utcNow.Add(_options.CodeLifetime),
             VerifyAttemptsUsed = 0,
             SendAttemptsUsed = 0,
-            Code = new SignCode
+            SignCode = new SignCode
             {
                 Id = Guid.NewGuid(),
                 CodeHash = generatedCode.Hash,
@@ -110,7 +110,7 @@ public sealed class SignService : ISignService
 
         AddAttempt(signRequest, SignAttemptType.Created, "Запрос на подписание создан.", utcNow);
 
-        _dbContext.Requests.Add(signRequest);
+        _dbContext.SignRequests.Add(signRequest);
         var sendCodeResult = await SendCodeAsync(signRequest, generatedCode.Value, isResend: false, utcNow, cancellationToken);
         return new StartSigningResult
         {
@@ -144,14 +144,14 @@ public sealed class SignService : ISignService
 
         var isValid = _verificationCodeProtector.Verify(
             request.Code,
-            signRequest.Code!.CodeHash,
-            signRequest.Code.CodeSalt);
+            signRequest.SignCode!.CodeHash,
+            signRequest.SignCode.CodeSalt);
 
         if (isValid)
         {
             signRequest.Status = SignRequestStatus.Signed;
             signRequest.SignedAtUtc = utcNow;
-            signRequest.Code.IsUsed = true;
+            signRequest.SignCode.IsUsed = true;
             AddAttempt(signRequest, SignAttemptType.VerifySucceeded, "Код подтверждения успешно проверен.", utcNow);
         }
         else
@@ -227,11 +227,11 @@ public sealed class SignService : ISignService
         });
 
         signRequest.ExpiresAtUtc = utcNow.Add(_options.CodeLifetime);
-        signRequest.Code!.CodeHash = generatedCode.Hash;
-        signRequest.Code.CodeSalt = generatedCode.Salt;
-        signRequest.Code.CreatedAtUtc = utcNow;
-        signRequest.Code.ExpiresAtUtc = signRequest.ExpiresAtUtc;
-        signRequest.Code.IsUsed = false;
+        signRequest.SignCode!.CodeHash = generatedCode.Hash;
+        signRequest.SignCode.CodeSalt = generatedCode.Salt;
+        signRequest.SignCode.CreatedAtUtc = utcNow;
+        signRequest.SignCode.ExpiresAtUtc = signRequest.ExpiresAtUtc;
+        signRequest.SignCode.IsUsed = false;
 
         var sendCodeResult = await SendCodeAsync(signRequest, generatedCode.Value, isResend: true, utcNow, cancellationToken);
         return new ResendCodeResult
@@ -465,7 +465,7 @@ public sealed class SignService : ISignService
     /// <param name="utcNow">Текущее время в формате UTC.</param>
     private static void EnsureRequestCanBeVerified(SignRequest signRequest, DateTimeOffset utcNow)
     {
-        if (signRequest.Code is null)
+        if (signRequest.SignCode is null)
         {
             throw new InvalidOperationException("Для запроса отсутствует активный код подтверждения.");
         }
@@ -480,12 +480,12 @@ public sealed class SignService : ISignService
             throw new InvalidOperationException("Запрос заблокирован по лимиту попыток.");
         }
 
-        if (signRequest.Code.IsUsed)
+        if (signRequest.SignCode.IsUsed)
         {
             throw new InvalidOperationException("Код подтверждения уже использован.");
         }
 
-        if (signRequest.ExpiresAtUtc <= utcNow || signRequest.Code.ExpiresAtUtc <= utcNow)
+        if (signRequest.ExpiresAtUtc <= utcNow || signRequest.SignCode.ExpiresAtUtc <= utcNow)
         {
             signRequest.Status = SignRequestStatus.Expired;
             throw new InvalidOperationException("Срок действия кода подтверждения истек.");
@@ -505,7 +505,7 @@ public sealed class SignService : ISignService
         return new SignAttempt
         {
             Id = Guid.NewGuid(),
-            RequestId = requestId,
+            SignRequestId = requestId,
             Type = type,
             Details = details,
             CreatedAtUtc = utcNow
@@ -522,8 +522,8 @@ public sealed class SignService : ISignService
     private void AddAttempt(SignRequest signRequest, SignAttemptType type, string? details, DateTimeOffset utcNow)
     {
         var attempt = CreateAttempt(signRequest.Id, type, details, utcNow);
-        attempt.Request = signRequest;
-        _dbContext.Attempts.Add(attempt);
+        attempt.SignRequest = signRequest;
+        _dbContext.SignAttempts.Add(attempt);
     }
 
     /// <summary>

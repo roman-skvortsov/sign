@@ -65,7 +65,7 @@ public sealed class SignRequest
     /// <summary>
     /// Текущий код подтверждения.
     /// </summary>
-    public SignCode? Code { get; set; }
+    public SignCode? SignCode { get; set; }
 
     /// <summary>
     /// История действий по запросу.
