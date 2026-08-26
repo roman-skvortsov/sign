@@ -11,7 +11,7 @@ public sealed class MessageTemplateData
     /// Получает или задает идентификатор операции подписания документа.
     /// </summary>
     [TemplatePlaceholder("DocumentSignId")]
-    public string DocumentSignId { get; set; } = string.Empty;
+    public Guid DocumentSignId { get; set; }
 
     /// <summary>
     /// Получает или задает идентификатор запроса на подписание.

@@ -5,7 +5,7 @@ namespace Sign.Application.Contracts;
 /// <summary>
 /// Представляет результат запуска процесса подписания.
 /// </summary>
-public sealed class SigningResult
+public sealed class StartSigningResult
 {
     /// <summary>
     /// Получает или задает признак успешного выполнения отправки кода.
@@ -20,7 +20,7 @@ public sealed class SigningResult
     /// <summary>
     /// Получает или задает идентификатор операции подписания документа.
     /// </summary>
-    public string DocumentSignId { get; set; } = string.Empty;
+    public Guid DocumentSignId { get; set; }
 
     /// <summary>
     /// Получает или задает итоговый статус запроса.

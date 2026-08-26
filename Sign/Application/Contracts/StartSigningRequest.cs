@@ -10,7 +10,7 @@ public sealed class StartSigningRequest
     /// <summary>
     /// Получает или задает идентификатор операции подписания документа во внешней системе.
     /// </summary>
-    public string DocumentSignId { get; set; } = string.Empty;
+    public Guid DocumentSignId { get; set; }
 
     /// <summary>
     /// Получает или задает канал подтверждения.

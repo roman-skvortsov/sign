@@ -33,12 +33,11 @@ public sealed class SignRequestRepository : ISignRequestRepository
 
     /// <inheritdoc />
     public Task<SignRequest?> GetActiveByDocumentSignIdAsync(
-        string documentSignId,
+        Guid documentSignId,
         SignChannel channel,
         string recipient,
         CancellationToken cancellationToken = default)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(documentSignId);
         ArgumentException.ThrowIfNullOrWhiteSpace(recipient);
 
         return _dbContext.Requests

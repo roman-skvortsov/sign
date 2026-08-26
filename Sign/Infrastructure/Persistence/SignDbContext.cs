@@ -56,7 +56,7 @@ public sealed class SignDbContext : DbContext
         {
             builder.ToTable("SignRequests", _schema);
             builder.HasKey(x => x.Id);
-            builder.Property(x => x.DocumentSignId).HasMaxLength(200).IsRequired();
+            builder.Property(x => x.DocumentSignId).IsRequired();
             builder.Property(x => x.Recipient).HasMaxLength(320).IsRequired();
             builder.Property(x => x.Status).IsRequired();
             builder.Property(x => x.CreatedAtUtc).IsRequired();

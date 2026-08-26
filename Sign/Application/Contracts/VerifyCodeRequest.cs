@@ -3,7 +3,7 @@ namespace Sign.Application.Contracts;
 /// <summary>
 /// Представляет входные данные для проверки кода подтверждения.
 /// </summary>
-public sealed class VerifySigningCodeRequest
+public sealed class VerifyCodeRequest
 {
     /// <summary>
     /// Получает или задает идентификатор запроса на подписание.

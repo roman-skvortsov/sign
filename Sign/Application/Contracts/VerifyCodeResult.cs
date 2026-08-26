@@ -5,7 +5,7 @@ namespace Sign.Application.Contracts;
 /// <summary>
 /// Представляет результат проверки кода подтверждения.
 /// </summary>
-public sealed class VerificationResult
+public sealed class VerifyCodeResult
 {
     /// <summary>
     /// Получает или задает признак успешной проверки кода.

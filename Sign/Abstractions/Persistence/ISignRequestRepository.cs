@@ -25,7 +25,7 @@ public interface ISignRequestRepository
     /// <param name="cancellationToken">Токен отмены операции.</param>
     /// <returns>Активный запрос на подписание или <see langword="null"/>.</returns>
     Task<SignRequest?> GetActiveByDocumentSignIdAsync(
-        string documentSignId,
+        Guid documentSignId,
         SignChannel channel,
         string recipient,
         CancellationToken cancellationToken = default);

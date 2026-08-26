@@ -15,7 +15,7 @@ public sealed class SignRequest
     /// <summary>
     /// Получает или задает внешний идентификатор операции подписания документа.
     /// </summary>
-    public string DocumentSignId { get; set; } = string.Empty;
+    public Guid DocumentSignId { get; set; }
 
     /// <summary>
     /// Получает или задает канал подтверждения.

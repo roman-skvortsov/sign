@@ -147,7 +147,7 @@ public sealed class TestSignServiceScope : IAsyncDisposable
     /// </summary>
     /// <param name="request">Параметры запуска подписания.</param>
     /// <returns>Результат запуска процесса подписания.</returns>
-    public async Task<SigningResult> StartSigningAsync(StartSigningRequest request)
+    public async Task<StartSigningResult> StartSigningAsync(StartSigningRequest request)
     {
         await using var session = CreateSession();
         return await session.SignService.StartSigningAsync(request);
@@ -158,7 +158,7 @@ public sealed class TestSignServiceScope : IAsyncDisposable
     /// </summary>
     /// <param name="request">Параметры повторной отправки кода.</param>
     /// <returns>Результат повторной отправки.</returns>
-    public async Task<SigningResult> ResendCodeAsync(ResendSigningCodeRequest request)
+    public async Task<ResendCodeResult> ResendCodeAsync(ResendCodeRequest request)
     {
         await using var session = CreateSession();
         return await session.SignService.ResendCodeAsync(request);
@@ -169,7 +169,7 @@ public sealed class TestSignServiceScope : IAsyncDisposable
     /// </summary>
     /// <param name="request">Параметры проверки кода.</param>
     /// <returns>Результат проверки кода.</returns>
-    public async Task<VerificationResult> VerifyCodeAsync(VerifySigningCodeRequest request)
+    public async Task<VerifyCodeResult> VerifyCodeAsync(VerifyCodeRequest request)
     {
         await using var session = CreateSession();
         return await session.SignService.VerifyCodeAsync(request);

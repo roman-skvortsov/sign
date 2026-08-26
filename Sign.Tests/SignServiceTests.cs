@@ -19,7 +19,7 @@ public sealed class SignServiceTests
 
         var result = await scope.StartSigningAsync(new StartSigningRequest
         {
-            DocumentSignId = "doc-sms-001",
+            DocumentSignId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
             Channel = SignChannel.Sms,
             Recipient = "+79990000001"
         });
@@ -32,7 +32,7 @@ public sealed class SignServiceTests
         var request = await scope.GetRequestAsync(result.RequestId);
 
         Assert.Equal("+79990000001", lastMessage.Recipient);
-        Assert.Contains("doc-sms-001", lastMessage.Body);
+        Assert.Contains("11111111-1111-1111-1111-111111111111", lastMessage.Body);
         Assert.Equal(4, sentCode.Length);
         Assert.NotEqual(sentCode, request.Code!.CodeHash);
         Assert.False(request.Code.IsUsed);
@@ -51,7 +51,7 @@ public sealed class SignServiceTests
 
         var result = await scope.StartSigningAsync(new StartSigningRequest
         {
-            DocumentSignId = "doc-email-001",
+            DocumentSignId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
             Channel = SignChannel.Email,
             Recipient = "user@example.com"
         });
@@ -62,7 +62,7 @@ public sealed class SignServiceTests
         Assert.True(result.IsSuccess);
         Assert.Equal(6, sentCode.Length);
         Assert.Equal("user@example.com", lastMessage.Recipient);
-        Assert.Contains("doc-email-001", lastMessage.Subject);
+        Assert.Contains("22222222-2222-2222-2222-222222222222", lastMessage.Subject);
         Assert.Contains(result.RequestId.ToString(), lastMessage.Body);
     }
 
@@ -76,14 +76,14 @@ public sealed class SignServiceTests
 
         await scope.StartSigningAsync(new StartSigningRequest
         {
-            DocumentSignId = "doc-duplicate-001",
+            DocumentSignId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
             Channel = SignChannel.Sms,
             Recipient = "+79990000002"
         });
 
         var result = await scope.StartSigningAsync(new StartSigningRequest
         {
-            DocumentSignId = "doc-duplicate-001",
+            DocumentSignId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
             Channel = SignChannel.Sms,
             Recipient = "+79990000002"
         });
@@ -104,12 +104,12 @@ public sealed class SignServiceTests
 
         var startResult = await scope.StartSigningAsync(new StartSigningRequest
         {
-            DocumentSignId = "doc-cooldown-001",
+            DocumentSignId = Guid.Parse("44444444-4444-4444-4444-444444444444"),
             Channel = SignChannel.Sms,
             Recipient = "+79990000003"
         });
 
-        var resendResult = await scope.ResendCodeAsync(new ResendSigningCodeRequest
+        var resendResult = await scope.ResendCodeAsync(new ResendCodeRequest
         {
             RequestId = startResult.RequestId
         });
@@ -130,7 +130,7 @@ public sealed class SignServiceTests
 
         var startResult = await scope.StartSigningAsync(new StartSigningRequest
         {
-            DocumentSignId = "doc-resend-001",
+            DocumentSignId = Guid.Parse("55555555-5555-5555-5555-555555555555"),
             Channel = SignChannel.Email,
             Recipient = "resend@example.com"
         });
@@ -141,7 +141,7 @@ public sealed class SignServiceTests
 
         await scope.MoveSendAttemptsToPastAsync(startResult.RequestId, scope.Options.ResendCooldown.Add(TimeSpan.FromSeconds(5)));
 
-        var resendResult = await scope.ResendCodeAsync(new ResendSigningCodeRequest
+        var resendResult = await scope.ResendCodeAsync(new ResendCodeRequest
         {
             RequestId = startResult.RequestId
         });
@@ -168,14 +168,14 @@ public sealed class SignServiceTests
 
         var startResult = await scope.StartSigningAsync(new StartSigningRequest
         {
-            DocumentSignId = "doc-max-send-001",
+            DocumentSignId = Guid.Parse("66666666-6666-6666-6666-666666666666"),
             Channel = SignChannel.Sms,
             Recipient = "+79990000004"
         });
 
         await scope.MoveSendAttemptsToPastAsync(startResult.RequestId, TimeSpan.FromMinutes(2));
 
-        var resendResult = await scope.ResendCodeAsync(new ResendSigningCodeRequest
+        var resendResult = await scope.ResendCodeAsync(new ResendCodeRequest
         {
             RequestId = startResult.RequestId
         });
@@ -195,14 +195,14 @@ public sealed class SignServiceTests
 
         var startResult = await scope.StartSigningAsync(new StartSigningRequest
         {
-            DocumentSignId = "doc-verify-success-001",
+            DocumentSignId = Guid.Parse("77777777-7777-7777-7777-777777777777"),
             Channel = SignChannel.Sms,
             Recipient = "+79990000005"
         });
 
         var code = scope.GetLastCode(SignChannel.Sms);
 
-        var verificationResult = await scope.VerifyCodeAsync(new VerifySigningCodeRequest
+        var verificationResult = await scope.VerifyCodeAsync(new VerifyCodeRequest
         {
             RequestId = startResult.RequestId,
             Code = code
@@ -231,18 +231,18 @@ public sealed class SignServiceTests
 
         var startResult = await scope.StartSigningAsync(new StartSigningRequest
         {
-            DocumentSignId = "doc-verify-fail-001",
+            DocumentSignId = Guid.Parse("88888888-8888-8888-8888-888888888888"),
             Channel = SignChannel.Email,
             Recipient = "blocked@example.com"
         });
 
-        var firstAttempt = await scope.VerifyCodeAsync(new VerifySigningCodeRequest
+        var firstAttempt = await scope.VerifyCodeAsync(new VerifyCodeRequest
         {
             RequestId = startResult.RequestId,
             Code = "000000"
         });
 
-        var secondAttempt = await scope.VerifyCodeAsync(new VerifySigningCodeRequest
+        var secondAttempt = await scope.VerifyCodeAsync(new VerifyCodeRequest
         {
             RequestId = startResult.RequestId,
             Code = "111111"
@@ -271,20 +271,20 @@ public sealed class SignServiceTests
 
         var startResult = await scope.StartSigningAsync(new StartSigningRequest
         {
-            DocumentSignId = "doc-reuse-001",
+            DocumentSignId = Guid.Parse("99999999-9999-9999-9999-999999999999"),
             Channel = SignChannel.Sms,
             Recipient = "+79990000006"
         });
 
         var code = scope.GetLastCode(SignChannel.Sms);
 
-        await scope.VerifyCodeAsync(new VerifySigningCodeRequest
+        await scope.VerifyCodeAsync(new VerifyCodeRequest
         {
             RequestId = startResult.RequestId,
             Code = code
         });
 
-        var action = async () => await scope.VerifyCodeAsync(new VerifySigningCodeRequest
+        var action = async () => await scope.VerifyCodeAsync(new VerifyCodeRequest
         {
             RequestId = startResult.RequestId,
             Code = code

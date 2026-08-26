@@ -56,10 +56,9 @@ public sealed class SignService : ISignService
     }
 
     /// <inheritdoc />
-    public async Task<SigningResult> StartSigningAsync(StartSigningRequest request, CancellationToken cancellationToken = default)
+    public async Task<StartSigningResult> StartSigningAsync(StartSigningRequest request, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
-        ArgumentException.ThrowIfNullOrWhiteSpace(request.DocumentSignId);
         ArgumentException.ThrowIfNullOrWhiteSpace(request.Recipient);
 
         var utcNow = DateTimeOffset.UtcNow;
@@ -71,7 +70,7 @@ public sealed class SignService : ISignService
 
         if (activeRequest is not null)
         {
-            return new SigningResult
+            return new StartSigningResult
             {
                 IsSuccess = false,
                 RequestId = activeRequest.Id,
@@ -112,11 +111,21 @@ public sealed class SignService : ISignService
         AddAttempt(signRequest, SignAttemptType.Created, "Запрос на подписание создан.", utcNow);
 
         _dbContext.Requests.Add(signRequest);
-        return await SendCodeAsync(signRequest, generatedCode.Value, isResend: false, utcNow, cancellationToken);
+        var sendCodeResult = await SendCodeAsync(signRequest, generatedCode.Value, isResend: false, utcNow, cancellationToken);
+        return new StartSigningResult
+        {
+            IsSuccess = sendCodeResult.IsSuccess,
+            RequestId = sendCodeResult.RequestId,
+            DocumentSignId = sendCodeResult.DocumentSignId,
+            Status = sendCodeResult.Status,
+            ExpiresAtUtc = sendCodeResult.ExpiresAtUtc,
+            ErrorMessage = sendCodeResult.ErrorMessage,
+            NextAvailableAtUtc = sendCodeResult.NextAvailableAtUtc
+        };
     }
 
     /// <inheritdoc />
-    public async Task<VerificationResult> VerifyCodeAsync(VerifySigningCodeRequest request, CancellationToken cancellationToken = default)
+    public async Task<VerifyCodeResult> VerifyCodeAsync(VerifyCodeRequest request, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
         ArgumentException.ThrowIfNullOrWhiteSpace(request.Code);
@@ -162,7 +171,7 @@ public sealed class SignService : ISignService
         }
         catch (DbUpdateConcurrencyException)
         {
-            return new VerificationResult
+            return new VerifyCodeResult
             {
                 IsSuccess = false,
                 Status = signRequest.Status,
@@ -171,7 +180,7 @@ public sealed class SignService : ISignService
             };
         }
 
-        return new VerificationResult
+        return new VerifyCodeResult
         {
             IsSuccess = isValid,
             Status = signRequest.Status,
@@ -180,7 +189,7 @@ public sealed class SignService : ISignService
     }
 
     /// <inheritdoc />
-    public async Task<SigningResult> ResendCodeAsync(ResendSigningCodeRequest request, CancellationToken cancellationToken = default)
+    public async Task<ResendCodeResult> ResendCodeAsync(ResendCodeRequest request, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
 
@@ -188,7 +197,7 @@ public sealed class SignService : ISignService
 
         if (signRequest is null)
         {
-            return new SigningResult
+            return new ResendCodeResult
             {
                 IsSuccess = false,
                 ErrorMessage = "Запрос на подписание не найден."
@@ -200,7 +209,7 @@ public sealed class SignService : ISignService
 
         if (!sendAvailability.CanSend)
         {
-            return new SigningResult
+            return new ResendCodeResult
             {
                 IsSuccess = false,
                 RequestId = signRequest.Id,
@@ -224,7 +233,17 @@ public sealed class SignService : ISignService
         signRequest.Code.ExpiresAtUtc = signRequest.ExpiresAtUtc;
         signRequest.Code.IsUsed = false;
 
-        return await SendCodeAsync(signRequest, generatedCode.Value, isResend: true, utcNow, cancellationToken);
+        var sendCodeResult = await SendCodeAsync(signRequest, generatedCode.Value, isResend: true, utcNow, cancellationToken);
+        return new ResendCodeResult
+        {
+            IsSuccess = sendCodeResult.IsSuccess,
+            RequestId = sendCodeResult.RequestId,
+            DocumentSignId = sendCodeResult.DocumentSignId,
+            Status = sendCodeResult.Status,
+            ExpiresAtUtc = sendCodeResult.ExpiresAtUtc,
+            ErrorMessage = sendCodeResult.ErrorMessage,
+            NextAvailableAtUtc = sendCodeResult.NextAvailableAtUtc
+        };
     }
 
     /// <summary>
@@ -251,7 +270,7 @@ public sealed class SignService : ISignService
     /// <param name="utcNow">Текущее время в формате UTC.</param>
     /// <param name="cancellationToken">Токен отмены операции.</param>
     /// <returns>Результат отправки кода.</returns>
-    private async Task<SigningResult> SendCodeAsync(
+    private async Task<SendCodeResult> SendCodeAsync(
         SignRequest signRequest,
         string plainCode,
         bool isResend,
@@ -295,7 +314,7 @@ public sealed class SignService : ISignService
         }
         catch (DbUpdateConcurrencyException)
         {
-            return new SigningResult
+            return new SendCodeResult
             {
                 IsSuccess = false,
                 RequestId = signRequest.Id,
@@ -306,7 +325,7 @@ public sealed class SignService : ISignService
             };
         }
 
-        return new SigningResult
+        return new SendCodeResult
         {
             IsSuccess = true,
             RequestId = signRequest.Id,
@@ -502,5 +521,46 @@ public sealed class SignService : ISignService
         var attempt = CreateAttempt(signRequest.Id, type, details, utcNow);
         attempt.Request = signRequest;
         _dbContext.Attempts.Add(attempt);
+    }
+
+    /// <summary>
+    /// Представляет внутренний результат отправки кода подтверждения.
+    /// </summary>
+    private sealed class SendCodeResult
+    {
+        /// <summary>
+        /// Получает или задает признак успешной отправки кода.
+        /// </summary>
+        public bool IsSuccess { get; set; }
+
+        /// <summary>
+        /// Получает или задает идентификатор запроса на подписание.
+        /// </summary>
+        public Guid RequestId { get; set; }
+
+        /// <summary>
+        /// Получает или задает идентификатор операции подписания документа.
+        /// </summary>
+        public Guid DocumentSignId { get; set; }
+
+        /// <summary>
+        /// Получает или задает итоговый статус запроса.
+        /// </summary>
+        public SignRequestStatus Status { get; set; }
+
+        /// <summary>
+        /// Получает или задает дату и время истечения кода.
+        /// </summary>
+        public DateTimeOffset ExpiresAtUtc { get; set; }
+
+        /// <summary>
+        /// Получает или задает текст ошибки бизнес-операции.
+        /// </summary>
+        public string? ErrorMessage { get; set; }
+
+        /// <summary>
+        /// Получает или задает дату и время следующей доступной отправки.
+        /// </summary>
+        public DateTimeOffset? NextAvailableAtUtc { get; set; }
     }
 }

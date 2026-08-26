@@ -13,7 +13,7 @@ public interface ISignService
     /// <param name="request">Параметры запуска подписания.</param>
     /// <param name="cancellationToken">Токен отмены операции.</param>
     /// <returns>Результат запуска процесса подписания.</returns>
-    Task<SigningResult> StartSigningAsync(StartSigningRequest request, CancellationToken cancellationToken = default);
+    Task<StartSigningResult> StartSigningAsync(StartSigningRequest request, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Проверяет код подтверждения для ранее созданного запроса на подписание.
@@ -21,7 +21,7 @@ public interface ISignService
     /// <param name="request">Параметры проверки кода.</param>
     /// <param name="cancellationToken">Токен отмены операции.</param>
     /// <returns>Результат проверки кода.</returns>
-    Task<VerificationResult> VerifyCodeAsync(VerifySigningCodeRequest request, CancellationToken cancellationToken = default);
+    Task<VerifyCodeResult> VerifyCodeAsync(VerifyCodeRequest request, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Выполняет повторную отправку кода подтверждения для существующего запроса на подписание.
@@ -29,5 +29,5 @@ public interface ISignService
     /// <param name="request">Параметры повторной отправки кода.</param>
     /// <param name="cancellationToken">Токен отмены операции.</param>
     /// <returns>Результат повторной отправки кода.</returns>
-    Task<SigningResult> ResendCodeAsync(ResendSigningCodeRequest request, CancellationToken cancellationToken = default);
+    Task<ResendCodeResult> ResendCodeAsync(ResendCodeRequest request, CancellationToken cancellationToken = default);
 }
