@@ -1,0 +1,18 @@
+using SFN.Sign.Domain.Entities;
+using SFN.Sign.Domain.Enums;
+
+namespace SFN.Sign.Abstractions.Persistence;
+
+/// <summary>
+/// Определяет контракт репозитория для повторно используемых запросов по шаблонам сообщений.
+/// </summary>
+public interface IMessageTemplateRepository
+{
+    /// <summary>
+    /// Возвращает активный шаблон сообщения для указанного канала.
+    /// </summary>
+    /// <param name="channel">Канал подписания.</param>
+    /// <param name="cancellationToken">Токен отмены операции.</param>
+    /// <returns>Активный шаблон сообщения или <see langword="null"/>.</returns>
+    Task<MessageTemplate?> GetActiveByChannelAsync(SignChannel channel, CancellationToken cancellationToken = default);
+}

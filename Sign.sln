@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sign", "Sign\Sign.csproj", "{CB9006F7-F1F9-4F54-8BC3-8C8C958FC3A7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFN.Sign", "SFN.Sign\SFN.Sign.csproj", "{CB9006F7-F1F9-4F54-8BC3-8C8C958FC3A7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sign.Tests", "Sign.Tests\Sign.Tests.csproj", "{76D210FA-2FAE-4EBB-B3B5-1434DD591F96}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFN.Sign.Tests", "SFN.Sign.Tests\SFN.Sign.Tests.csproj", "{76D210FA-2FAE-4EBB-B3B5-1434DD591F96}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
