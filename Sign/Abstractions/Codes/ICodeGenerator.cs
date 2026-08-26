@@ -3,14 +3,14 @@ using Sign.Application.Codes;
 namespace Sign.Abstractions.Codes;
 
 /// <summary>
-/// Определяет контракт генерации кода подтверждения.
+/// Интерфейс генератора кода.
 /// </summary>
 public interface ICodeGenerator
 {
     /// <summary>
-    /// Генерирует новый код подтверждения и его хеш.
+    /// Создает новый код и его хеш.
     /// </summary>
-    /// <param name="context">Контекст генерации кода.</param>
-    /// <returns>Результат генерации кода.</returns>
+    /// <param name="context">Данные для создания кода.</param>
+    /// <returns>Новый код и данные для его хранения.</returns>
     GeneratedCode Generate(CodeGenerationData context);
 }

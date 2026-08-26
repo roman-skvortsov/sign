@@ -6,12 +6,12 @@ namespace Sign.Domain.Enums;
 public enum SignChannel
 {
     /// <summary>
-    /// Канал подтверждения через SMS.
+    /// Подписание через SMS.
     /// </summary>
     Sms = 1,
 
     /// <summary>
-    /// Канал подтверждения через электронную почту.
+    /// Подписание через электронную почту.
     /// </summary>
     Email = 2
 }

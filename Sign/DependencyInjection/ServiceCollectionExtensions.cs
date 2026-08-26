@@ -14,17 +14,17 @@ using Sign.Infrastructure.Security;
 namespace Sign.DependencyInjection;
 
 /// <summary>
-/// Содержит методы расширения для регистрации библиотеки подписания в контейнере зависимостей.
+/// Методы для регистрации библиотеки в DI.
 /// </summary>
 public static class ServiceCollectionExtensions
 {
     /// <summary>
-    /// Регистрирует сервисы библиотеки подписания документов и контекст PostgreSQL.
+    /// Регистрирует библиотеку подписания и контекст PostgreSQL.
     /// </summary>
-    /// <param name="services">Коллекция сервисов приложения.</param>
+    /// <param name="services">Сервисы приложения.</param>
     /// <param name="connectionString">Строка подключения к PostgreSQL.</param>
-    /// <param name="configureOptions">Делегат конфигурации настроек библиотеки.</param>
-    /// <returns>Исходная коллекция сервисов.</returns>
+    /// <param name="configureOptions">Настройка параметров библиотеки.</param>
+    /// <returns>Коллекция сервисов.</returns>
     public static IServiceCollection AddSignLibrary(
         this IServiceCollection services,
         string connectionString,
@@ -48,6 +48,10 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ICodeGenerator, NumericCodeGenerator>();
         services.AddSingleton<ITemplateValueProvider, ReflectionTemplateValueProvider>();
         services.AddSingleton<IMessageTemplateRenderer, DefaultMessageTemplateRenderer>();
+
+        // TODO: Пользователь библиотеки должен зарегистрировать собственные реализации ISignChannelSender
+        // для нужных каналов, например EmailSignChannelSender и SmsSignChannelSender.
+        // TODO: На этом уровне библиотека не привязана к конкретным пакетам отправки сообщений.
 
         return services;
     }

@@ -247,9 +247,9 @@ public sealed class SignService : ISignService
     }
 
     /// <summary>
-    /// Возвращает отправителя для указанного канала подтверждения.
+    /// Возвращает отправителя для указанного канала подписания.
     /// </summary>
-    /// <param name="channel">Канал подтверждения.</param>
+    /// <param name="channel">Канал подписания.</param>
     /// <returns>Экземпляр отправителя по выбранному каналу.</returns>
     private ISignChannelSender ResolveSender(SignChannel channel)
     {
@@ -292,6 +292,9 @@ public sealed class SignService : ISignService
         try
         {
             var sender = ResolveSender(signRequest.Channel);
+
+            // TODO: Здесь будет вызываться реальная отправка через Email/Sms-реализации ISignChannelSender,
+            // которые должны быть зарегистрированы в DI пользователем библиотеки.
             await sender.SendAsync(message, cancellationToken);
 
             signRequest.Status = SignRequestStatus.CodeSent;

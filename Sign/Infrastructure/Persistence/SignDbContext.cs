@@ -6,17 +6,17 @@ using Sign.Configuration;
 namespace Sign.Infrastructure.Persistence;
 
 /// <summary>
-/// Представляет контекст базы данных библиотеки подписания документов.
+/// Контекст базы данных библиотеки подписания.
 /// </summary>
 public sealed class SignDbContext : DbContext
 {
     private readonly string _schema;
 
     /// <summary>
-    /// Инициализирует новый экземпляр класса <see cref="SignDbContext"/>.
+    /// Создает контекст базы данных.
     /// </summary>
-    /// <param name="options">Параметры конфигурации контекста.</param>
-    /// <param name="signOptions">Настройки библиотеки подписания.</param>
+    /// <param name="options">Настройки контекста.</param>
+    /// <param name="signOptions">Настройки библиотеки.</param>
     public SignDbContext(DbContextOptions<SignDbContext> options, IOptions<SignOptions> signOptions)
         : base(options)
     {
@@ -24,22 +24,22 @@ public sealed class SignDbContext : DbContext
     }
 
     /// <summary>
-    /// Получает набор запросов на подписание.
+    /// Запросы на подписание.
     /// </summary>
     public DbSet<SignRequest> Requests => Set<SignRequest>();
 
     /// <summary>
-    /// Получает набор кодов подтверждения.
+    /// Коды подтверждения.
     /// </summary>
     public DbSet<SignCode> Codes => Set<SignCode>();
 
     /// <summary>
-    /// Получает набор записей аудита по процессу подписания.
+    /// Записи о действиях и попытках.
     /// </summary>
     public DbSet<SignAttempt> Attempts => Set<SignAttempt>();
 
     /// <summary>
-    /// Получает набор шаблонов сообщений по каналам подтверждения.
+    /// Шаблоны сообщений.
     /// </summary>
     public DbSet<MessageTemplate> MessageTemplates => Set<MessageTemplate>();
 

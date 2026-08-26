@@ -20,7 +20,7 @@ public interface ISignRequestRepository
     /// Возвращает активный запрос на подписание для документа, канала и получателя вместе с кодом и историей попыток.
     /// </summary>
     /// <param name="documentSignId">Идентификатор операции подписания документа.</param>
-    /// <param name="channel">Канал подтверждения.</param>
+    /// <param name="channel">Канал подписания.</param>
     /// <param name="recipient">Адрес получателя кода.</param>
     /// <param name="cancellationToken">Токен отмены операции.</param>
     /// <returns>Активный запрос на подписание или <see langword="null"/>.</returns>

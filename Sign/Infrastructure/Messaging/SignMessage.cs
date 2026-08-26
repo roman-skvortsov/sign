@@ -3,27 +3,27 @@ using Sign.Domain.Enums;
 namespace Sign.Infrastructure.Messaging;
 
 /// <summary>
-/// Представляет готовое сообщение для отправки по каналу подтверждения.
+/// Готовое сообщение для отправки.
 /// </summary>
 public sealed class SignMessage
 {
     /// <summary>
-    /// Получает или задает канал сообщения.
+    /// Канал сообщения.
     /// </summary>
     public SignChannel Channel { get; set; }
 
     /// <summary>
-    /// Получает или задает адрес получателя сообщения.
+    /// Адрес получателя.
     /// </summary>
     public string Recipient { get; set; } = string.Empty;
 
     /// <summary>
-    /// Получает или задает тему сообщения.
+    /// Тема сообщения.
     /// </summary>
     public string? Subject { get; set; }
 
     /// <summary>
-    /// Получает или задает тело сообщения.
+    /// Текст сообщения.
     /// </summary>
     public string Body { get; set; } = string.Empty;
 }

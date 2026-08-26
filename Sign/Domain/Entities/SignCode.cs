@@ -1,47 +1,47 @@
 namespace Sign.Domain.Entities;
 
 /// <summary>
-/// Представляет код подтверждения, связанный с запросом на подписание.
+/// Код подтверждения для запроса на подписание.
 /// </summary>
 public sealed class SignCode
 {
     /// <summary>
-    /// Получает или задает идентификатор записи.
+    /// Идентификатор записи.
     /// </summary>
     public Guid Id { get; set; }
 
     /// <summary>
-    /// Получает или задает идентификатор запроса на подписание.
+    /// Идентификатор запроса на подписание.
     /// </summary>
     public Guid RequestId { get; set; }
 
     /// <summary>
-    /// Получает или задает хеш кода подтверждения.
+    /// Хеш кода.
     /// </summary>
     public string CodeHash { get; set; } = string.Empty;
 
     /// <summary>
-    /// Получает или задает соль кода подтверждения.
+    /// Соль кода.
     /// </summary>
     public string CodeSalt { get; set; } = string.Empty;
 
     /// <summary>
-    /// Получает или задает дату и время создания кода.
+    /// Время создания кода.
     /// </summary>
     public DateTimeOffset CreatedAtUtc { get; set; }
 
     /// <summary>
-    /// Получает или задает дату и время истечения кода.
+    /// Время окончания срока действия кода.
     /// </summary>
     public DateTimeOffset ExpiresAtUtc { get; set; }
 
     /// <summary>
-    /// Получает или задает признак использования кода.
+    /// Показывает, был ли код использован.
     /// </summary>
     public bool IsUsed { get; set; }
 
     /// <summary>
-    /// Получает или задает связанный запрос на подписание.
+    /// Связанный запрос на подписание.
     /// </summary>
     public SignRequest Request { get; set; } = null!;
 }

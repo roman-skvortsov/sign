@@ -8,7 +8,7 @@ namespace Sign.Abstractions.Messaging;
 public interface IMessageTemplateRenderer
 {
     /// <summary>
-    /// Формирует сообщение для отправки по каналу подтверждения.
+    /// Собирает сообщение для отправки по каналу подписания.
     /// </summary>
     /// <param name="context">Контекст шаблона сообщения.</param>
     /// <param name="cancellationToken">Токен отмены операции.</param>

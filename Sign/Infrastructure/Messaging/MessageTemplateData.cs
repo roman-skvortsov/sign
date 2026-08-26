@@ -3,48 +3,48 @@ using Sign.Domain.Enums;
 namespace Sign.Infrastructure.Messaging;
 
 /// <summary>
-/// Содержит данные для построения сообщения по шаблону.
+/// Данные для сборки сообщения по шаблону.
 /// </summary>
 public sealed class MessageTemplateData
 {
     /// <summary>
-    /// Получает или задает идентификатор операции подписания документа.
+    /// Идентификатор подписания документа.
     /// </summary>
     [TemplatePlaceholder("DocumentSignId")]
     public Guid DocumentSignId { get; set; }
 
     /// <summary>
-    /// Получает или задает идентификатор запроса на подписание.
+    /// Идентификатор запроса на подписание.
     /// </summary>
     [TemplatePlaceholder("RequestId")]
     public Guid RequestId { get; set; }
 
     /// <summary>
-    /// Получает или задает канал подтверждения.
+    /// Канал подписания.
     /// </summary>
     [TemplatePlaceholder("Channel")]
     public SignChannel Channel { get; set; }
 
     /// <summary>
-    /// Получает или задает адрес получателя.
+    /// Адрес получателя.
     /// </summary>
     [TemplatePlaceholder("Recipient")]
     public string Recipient { get; set; } = string.Empty;
 
     /// <summary>
-    /// Получает или задает исходный код подтверждения.
+    /// Код подтверждения.
     /// </summary>
     [TemplatePlaceholder("SignCode")]
     public string Code { get; set; } = string.Empty;
 
     /// <summary>
-    /// Получает или задает дату и время истечения кода.
+    /// Время окончания срока действия кода.
     /// </summary>
     [TemplatePlaceholder("ExpiresAtUtc")]
     public DateTimeOffset ExpiresAtUtc { get; set; }
 
     /// <summary>
-    /// Получает словарь дополнительных значений для подстановки в шаблон.
+    /// Дополнительные значения заменяемых полей.
     /// </summary>
     public IDictionary<string, string?> PlaceholderValues { get; set; } = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase);
 }

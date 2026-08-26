@@ -3,27 +3,27 @@ using Sign.Domain.Enums;
 namespace Sign.Application.Contracts;
 
 /// <summary>
-/// Представляет результат проверки кода подтверждения.
+/// Результат проверки кода.
 /// </summary>
 public sealed class VerifyCodeResult
 {
     /// <summary>
-    /// Получает или задает признак успешной проверки кода.
+    /// Успешна ли проверка кода.
     /// </summary>
     public bool IsSuccess { get; set; }
 
     /// <summary>
-    /// Получает или задает итоговый статус запроса.
+    /// Текущий статус запроса.
     /// </summary>
     public SignRequestStatus Status { get; set; }
 
     /// <summary>
-    /// Получает или задает количество оставшихся попыток проверки.
+    /// Сколько попыток осталось.
     /// </summary>
     public int RemainingAttempts { get; set; }
 
     /// <summary>
-    /// Получает или задает текст ошибки бизнес-операции, если проверка не была выполнена.
+    /// Текст ошибки, если код не удалось проверить.
     /// </summary>
     public string? ErrorMessage { get; set; }
 }

@@ -8,7 +8,7 @@ namespace Sign.Application.Codes;
 public sealed class CodeGenerationData
 {
     /// <summary>
-    /// Получает или задает канал подтверждения.
+    /// Канал подписания.
     /// </summary>
     public SignChannel Channel { get; set; }
 }

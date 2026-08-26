@@ -4,20 +4,23 @@ using Sign.Infrastructure.Messaging;
 namespace Sign.Abstractions.Messaging;
 
 /// <summary>
-/// Определяет контракт отправки сообщений по каналу подтверждения.
+/// Интерфейс отправки сообщений.
 /// </summary>
 public interface ISignChannelSender
 {
     /// <summary>
-    /// Получает канал, поддерживаемый реализацией отправителя.
+    /// Канал, с которым работает отправитель.
     /// </summary>
     SignChannel Channel { get; }
 
     /// <summary>
-    /// Отправляет сформированное сообщение получателю.
+    /// Отправляет готовое сообщение.
+    /// TODO: Добавить реальные реализации отправки для Email и Sms через внешние библиотеки или провайдеры.
+    /// TODO: Для Email рекомендуется отдельная реализация с SMTP или email-провайдером.
+    /// TODO: Для Sms рекомендуется отдельная реализация с HTTP API или SDK выбранного SMS-провайдера.
     /// </summary>
-    /// <param name="message">Сообщение для отправки.</param>
+    /// <param name="message">Готовое сообщение.</param>
     /// <param name="cancellationToken">Токен отмены операции.</param>
-    /// <returns>Асинхронная задача отправки сообщения.</returns>
+    /// <returns>Задача отправки.</returns>
     Task SendAsync(SignMessage message, CancellationToken cancellationToken = default);
 }

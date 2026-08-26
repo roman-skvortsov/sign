@@ -11,7 +11,7 @@ public interface IMessageTemplateRepository
     /// <summary>
     /// Возвращает активный шаблон сообщения для указанного канала.
     /// </summary>
-    /// <param name="channel">Канал подтверждения.</param>
+    /// <param name="channel">Канал подписания.</param>
     /// <param name="cancellationToken">Токен отмены операции.</param>
     /// <returns>Активный шаблон сообщения или <see langword="null"/>.</returns>
     Task<MessageTemplate?> GetActiveByChannelAsync(SignChannel channel, CancellationToken cancellationToken = default);

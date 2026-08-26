@@ -3,22 +3,22 @@ using Sign.Domain.Enums;
 namespace Sign.Application.Contracts;
 
 /// <summary>
-/// Представляет входные данные для запуска процесса подписания.
+/// Данные для запуска подписания.
 /// </summary>
 public sealed class StartSigningRequest
 {
     /// <summary>
-    /// Получает или задает идентификатор операции подписания документа во внешней системе.
+    /// Идентификатор подписания документа во внешней системе.
     /// </summary>
     public Guid DocumentSignId { get; set; }
 
     /// <summary>
-    /// Получает или задает канал подтверждения.
+    /// Канал подписания.
     /// </summary>
     public SignChannel Channel { get; set; }
 
     /// <summary>
-    /// Получает или задает адрес получателя кода подтверждения.
+    /// Адрес получателя кода.
     /// </summary>
     public string Recipient { get; set; } = string.Empty;
 }

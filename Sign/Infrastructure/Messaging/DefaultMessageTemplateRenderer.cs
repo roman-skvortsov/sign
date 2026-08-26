@@ -20,7 +20,7 @@ public sealed class DefaultMessageTemplateRenderer : IMessageTemplateRenderer
     /// Инициализирует новый экземпляр класса <see cref="DefaultMessageTemplateRenderer"/>.
     /// </summary>
     /// <param name="messageTemplateRepository">Репозиторий шаблонов сообщений.</param>
-    /// <param name="templateValueProvider">Сервис извлечения значений плейсхолдеров.</param>
+    /// <param name="templateValueProvider">Сервис получения значений заменяемых полей.</param>
     public DefaultMessageTemplateRenderer(
         IMessageTemplateRepository messageTemplateRepository,
         ITemplateValueProvider templateValueProvider)
@@ -56,7 +56,7 @@ public sealed class DefaultMessageTemplateRenderer : IMessageTemplateRenderer
     /// Выполняет подстановку значений в шаблон сообщения.
     /// </summary>
     /// <param name="template">Строковый шаблон.</param>
-    /// <param name="placeholderValues">Набор значений плейсхолдеров.</param>
+    /// <param name="placeholderValues">Набор значений заменяемых полей.</param>
     /// <returns>Строка с подставленными значениями.</returns>
     private static string? RenderTemplate(string? template, IReadOnlyDictionary<string, string?> placeholderValues)
     {

@@ -3,14 +3,14 @@ using Sign.Infrastructure.Messaging;
 namespace Sign.Abstractions.Messaging;
 
 /// <summary>
-/// Определяет контракт извлечения значений плейсхолдеров из контекста шаблона.
+/// Интерфейс получения значений заменяемых полей из данных шаблона.
 /// </summary>
 public interface ITemplateValueProvider
 {
     /// <summary>
-    /// Извлекает значения плейсхолдеров из переданного контекста.
+    /// Получает значения заменяемых полей из переданных данных.
     /// </summary>
     /// <param name="context">Контекст шаблона сообщения.</param>
-    /// <returns>Словарь плейсхолдеров и их значений.</returns>
+    /// <returns>Словарь заменяемых полей и их значений.</returns>
     IReadOnlyDictionary<string, string?> GetValues(MessageTemplateData context);
 }

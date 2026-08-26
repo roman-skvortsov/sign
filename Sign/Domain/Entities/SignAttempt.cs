@@ -3,37 +3,37 @@ using Sign.Domain.Enums;
 namespace Sign.Domain.Entities;
 
 /// <summary>
-/// Представляет запись журнала действий и попыток по процессу подписания.
+/// Запись о действии или попытке.
 /// </summary>
 public sealed class SignAttempt
 {
     /// <summary>
-    /// Получает или задает идентификатор записи.
+    /// Идентификатор записи.
     /// </summary>
     public Guid Id { get; set; }
 
     /// <summary>
-    /// Получает или задает идентификатор запроса на подписание.
+    /// Идентификатор запроса на подписание.
     /// </summary>
     public Guid RequestId { get; set; }
 
     /// <summary>
-    /// Получает или задает тип события или попытки.
+    /// Тип действия или попытки.
     /// </summary>
     public SignAttemptType Type { get; set; }
 
     /// <summary>
-    /// Получает или задает дополнительные сведения о событии.
+    /// Дополнительные сведения.
     /// </summary>
     public string? Details { get; set; }
 
     /// <summary>
-    /// Получает или задает дату и время создания записи.
+    /// Время создания записи.
     /// </summary>
     public DateTimeOffset CreatedAtUtc { get; set; }
 
     /// <summary>
-    /// Получает или задает связанный запрос на подписание.
+    /// Связанный запрос на подписание.
     /// </summary>
     public SignRequest Request { get; set; } = null!;
 }

@@ -3,42 +3,42 @@ using Sign.Domain.Enums;
 namespace Sign.Application.Contracts;
 
 /// <summary>
-/// Представляет результат запуска процесса подписания.
+/// Результат запуска подписания.
 /// </summary>
 public sealed class StartSigningResult
 {
     /// <summary>
-    /// Получает или задает признак успешного выполнения отправки кода.
+    /// Успешна ли отправка кода.
     /// </summary>
     public bool IsSuccess { get; set; }
 
     /// <summary>
-    /// Получает или задает идентификатор запроса на подписание.
+    /// Идентификатор запроса на подписание.
     /// </summary>
     public Guid RequestId { get; set; }
 
     /// <summary>
-    /// Получает или задает идентификатор операции подписания документа.
+    /// Идентификатор подписания документа.
     /// </summary>
     public Guid DocumentSignId { get; set; }
 
     /// <summary>
-    /// Получает или задает итоговый статус запроса.
+    /// Текущий статус запроса.
     /// </summary>
     public SignRequestStatus Status { get; set; }
 
     /// <summary>
-    /// Получает или задает дату и время истечения кода.
+    /// Время окончания срока действия кода.
     /// </summary>
     public DateTimeOffset ExpiresAtUtc { get; set; }
 
     /// <summary>
-    /// Получает или задает текст бизнес-ошибки, если отправка кода недоступна.
+    /// Текст ошибки, если код не удалось отправить.
     /// </summary>
     public string? ErrorMessage { get; set; }
 
     /// <summary>
-    /// Получает или задает дату и время, начиная с которых отправка снова будет доступна.
+    /// Время, когда отправка снова станет доступна.
     /// </summary>
     public DateTimeOffset? NextAvailableAtUtc { get; set; }
 }

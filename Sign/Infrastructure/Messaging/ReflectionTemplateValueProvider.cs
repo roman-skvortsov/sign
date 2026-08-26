@@ -6,7 +6,7 @@ using System.Reflection;
 namespace Sign.Infrastructure.Messaging;
 
 /// <summary>
-/// Представляет реализацию извлечения значений плейсхолдеров из контекста сообщения через reflection с кэшированием.
+/// Получает значения заменяемых полей из данных сообщения через reflection с кэшированием.
 /// </summary>
 public sealed class ReflectionTemplateValueProvider : ITemplateValueProvider
 {
@@ -35,10 +35,10 @@ public sealed class ReflectionTemplateValueProvider : ITemplateValueProvider
     }
 
     /// <summary>
-    /// Формирует набор дескрипторов плейсхолдеров для указанного типа контекста.
+    /// Собирает набор описаний заменяемых полей для указанного типа.
     /// </summary>
     /// <param name="contextType">Тип контекста шаблона.</param>
-    /// <returns>Набор дескрипторов плейсхолдеров.</returns>
+    /// <returns>Набор описаний заменяемых полей.</returns>
     private static IReadOnlyCollection<PlaceholderDescriptor> BuildDescriptors(Type contextType)
     {
         return contextType
@@ -71,9 +71,9 @@ public sealed class ReflectionTemplateValueProvider : ITemplateValueProvider
     }
 
     /// <summary>
-    /// Представляет описание плейсхолдера и связанного свойства контекста.
+    /// Описание заменяемого поля и связанного свойства.
     /// </summary>
-    /// <param name="PlaceholderName">Имя плейсхолдера.</param>
+    /// <param name="PlaceholderName">Имя заменяемого поля.</param>
     /// <param name="Property">Свойство контекста.</param>
     private sealed record PlaceholderDescriptor(string PlaceholderName, PropertyInfo Property);
 }

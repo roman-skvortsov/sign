@@ -1,17 +1,17 @@
 namespace Sign.Application.Contracts;
 
 /// <summary>
-/// Представляет входные данные для проверки кода подтверждения.
+/// Данные для проверки кода.
 /// </summary>
 public sealed class VerifyCodeRequest
 {
     /// <summary>
-    /// Получает или задает идентификатор запроса на подписание.
+    /// Идентификатор запроса на подписание.
     /// </summary>
     public Guid RequestId { get; set; }
 
     /// <summary>
-    /// Получает или задает код, введенный пользователем.
+    /// Код, который ввел пользователь.
     /// </summary>
     public string Code { get; set; } = string.Empty;
 }
