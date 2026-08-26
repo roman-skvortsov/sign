@@ -18,9 +18,9 @@ public sealed class MessageTemplate
     public SignChannel Channel { get; set; }
 
     /// <summary>
-    /// Уникальный код шаблона.
+    /// Тип шаблона.
     /// </summary>
-    public string TemplateCode { get; set; } = string.Empty;
+    public MessageTemplateType TemplateType { get; set; }
 
     /// <summary>
     /// Тема сообщения.

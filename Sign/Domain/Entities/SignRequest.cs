@@ -70,5 +70,5 @@ public sealed class SignRequest
     /// <summary>
     /// История действий по запросу.
     /// </summary>
-    public ICollection<SignAttempt> Attempts { get; set; } = new List<SignAttempt>();
+    public ICollection<SignAttempt> SignAttempts { get; set; } = new List<SignAttempt>();
 }

@@ -36,9 +36,9 @@ public sealed class SignServiceTests
         Assert.Equal(4, sentCode.Length);
         Assert.NotEqual(sentCode, request.SignCode!.CodeHash);
         Assert.False(request.SignCode.IsUsed);
-        Assert.Equal(2, request.Attempts.Count);
-        Assert.Contains(request.Attempts, x => x.Type == SignAttemptType.Created);
-        Assert.Contains(request.Attempts, x => x.Type == SignAttemptType.Sent);
+        Assert.Equal(2, request.SignAttempts.Count);
+        Assert.Contains(request.SignAttempts, x => x.Type == SignAttemptType.Created);
+        Assert.Contains(request.SignAttempts, x => x.Type == SignAttemptType.Sent);
     }
 
     /// <summary>
@@ -152,7 +152,7 @@ public sealed class SignServiceTests
         Assert.Equal(2, scope.EmailSender.SentMessages.Count);
         Assert.Equal(2, requestAfterResend.SendAttemptsUsed);
         Assert.NotEqual(oldSalt, requestAfterResend.SignCode!.CodeSalt);
-        Assert.Contains(requestAfterResend.Attempts, x => x.Type == SignAttemptType.Resent);
+        Assert.Contains(requestAfterResend.SignAttempts, x => x.Type == SignAttemptType.Resent);
     }
 
     /// <summary>
@@ -215,7 +215,7 @@ public sealed class SignServiceTests
         Assert.Equal(SignRequestStatus.Signed, request.Status);
         Assert.True(request.SignCode!.IsUsed);
         Assert.NotNull(request.SignedAtUtc);
-        Assert.Contains(request.Attempts, x => x.Type == SignAttemptType.VerifySucceeded);
+        Assert.Contains(request.SignAttempts, x => x.Type == SignAttemptType.VerifySucceeded);
     }
 
     /// <summary>
@@ -257,8 +257,8 @@ public sealed class SignServiceTests
         Assert.Equal(0, secondAttempt.RemainingAttempts);
         Assert.Equal(SignRequestStatus.Blocked, request.Status);
         Assert.Equal(2, request.VerifyAttemptsUsed);
-        Assert.Equal(2, request.Attempts.Count(x => x.Type == SignAttemptType.VerifyFailed));
-        Assert.Contains(request.Attempts, x => x.Type == SignAttemptType.Blocked);
+        Assert.Equal(2, request.SignAttempts.Count(x => x.Type == SignAttemptType.VerifyFailed));
+        Assert.Contains(request.SignAttempts, x => x.Type == SignAttemptType.Blocked);
     }
 
     /// <summary>

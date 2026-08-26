@@ -186,7 +186,7 @@ public sealed class TestSignServiceScope : IAsyncDisposable
 
         return await dbContext.SignRequests
             .Include(x => x.SignCode)
-            .Include(x => x.Attempts)
+            .Include(x => x.SignAttempts)
             .SingleAsync(x => x.Id == requestId);
     }
 
@@ -281,7 +281,7 @@ public sealed class TestSignServiceScope : IAsyncDisposable
             {
                 Id = Guid.NewGuid(),
                 Channel = SignChannel.Sms,
-                TemplateCode = "sms-sign-code",
+                TemplateType = MessageTemplateType.SignDocument,
                 SubjectTemplate = null,
                 BodyTemplate = "Документ %%DocumentSignId%%. Код подтверждения: %%SignCode%%.",
                 IsActive = true,
@@ -292,7 +292,7 @@ public sealed class TestSignServiceScope : IAsyncDisposable
             {
                 Id = Guid.NewGuid(),
                 Channel = SignChannel.Email,
-                TemplateCode = "email-sign-code",
+                TemplateType = MessageTemplateType.SignDocument,
                 SubjectTemplate = "Подписание документа %%DocumentSignId%%",
                 BodyTemplate = "Ваш код подтверждения: %%SignCode%%. Идентификатор запроса: %%RequestId%%.",
                 IsActive = true,

@@ -27,7 +27,7 @@ public sealed class SignRequestRepository : ISignRequestRepository
     {
         return _dbContext.SignRequests
             .Include(x => x.SignCode)
-            .Include(x => x.Attempts)
+            .Include(x => x.SignAttempts)
             .SingleOrDefaultAsync(x => x.Id == requestId, cancellationToken);
     }
 
@@ -42,7 +42,7 @@ public sealed class SignRequestRepository : ISignRequestRepository
 
         return _dbContext.SignRequests
             .Include(x => x.SignCode)
-            .Include(x => x.Attempts)
+            .Include(x => x.SignAttempts)
             .SingleOrDefaultAsync(
                 x => x.DocumentSignId == documentSignId
                     && x.Channel == channel

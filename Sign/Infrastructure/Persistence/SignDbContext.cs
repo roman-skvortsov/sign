@@ -78,7 +78,7 @@ public sealed class SignDbContext : DbContext
             builder.HasOne(x => x.SignCode)
                 .WithOne(x => x.SignRequest)
                 .HasForeignKey<SignCode>(x => x.SignRequestId);
-            builder.HasMany(x => x.Attempts)
+            builder.HasMany(x => x.SignAttempts)
                 .WithOne(x => x.SignRequest)
                 .HasForeignKey(x => x.SignRequestId);
         });
@@ -110,13 +110,13 @@ public sealed class SignDbContext : DbContext
             builder.ToTable("MessageTemplates", _schema);
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Channel).IsRequired();
-            builder.Property(x => x.TemplateCode).HasMaxLength(100).IsRequired();
+            builder.Property(x => x.TemplateType).IsRequired();
             builder.Property(x => x.SubjectTemplate).HasMaxLength(500);
             builder.Property(x => x.BodyTemplate).HasMaxLength(4000).IsRequired();
             builder.Property(x => x.IsActive).IsRequired();
             builder.Property(x => x.CreatedAtUtc).IsRequired();
             builder.Property(x => x.UpdatedAtUtc).IsRequired();
-            builder.HasIndex(x => x.TemplateCode).IsUnique();
+            builder.HasIndex(x => x.TemplateType);
             builder.HasIndex(x => new { x.Channel, x.IsActive });
         });
     }

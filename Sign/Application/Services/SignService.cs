@@ -427,7 +427,7 @@ public sealed class SignService : ISignService
     /// <returns>Дата и время последней попытки отправки кода или <see langword="null"/>.</returns>
     private static DateTimeOffset? GetLastSendAttemptAtUtc(SignRequest signRequest)
     {
-        return signRequest.Attempts
+        return signRequest.SignAttempts
             .Where(x => x.Type is SignAttemptType.Sent or SignAttemptType.Resent or SignAttemptType.SendFailed)
             .OrderByDescending(x => x.CreatedAtUtc)
             .Select(x => (DateTimeOffset?)x.CreatedAtUtc)
