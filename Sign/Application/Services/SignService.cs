@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Sign.Abstractions.Codes;
 using Sign.Abstractions.Messaging;
@@ -108,7 +109,7 @@ public sealed class SignService : ISignService
             }
         };
 
-        signRequest.Attempts.Add(CreateAttempt(signRequest.Id, SignAttemptType.Created, "Запрос на подписание создан.", utcNow));
+        AddAttempt(signRequest, SignAttemptType.Created, "Запрос на подписание создан.", utcNow);
 
         _dbContext.Requests.Add(signRequest);
         return await SendCodeAsync(signRequest, generatedCode.Value, isResend: false, utcNow, cancellationToken);
@@ -142,20 +143,33 @@ public sealed class SignService : ISignService
             signRequest.Status = SignRequestStatus.Signed;
             signRequest.SignedAtUtc = utcNow;
             signRequest.Code.IsUsed = true;
-            signRequest.Attempts.Add(CreateAttempt(signRequest.Id, SignAttemptType.VerifySucceeded, "Код подтверждения успешно проверен.", utcNow));
+            AddAttempt(signRequest, SignAttemptType.VerifySucceeded, "Код подтверждения успешно проверен.", utcNow);
         }
         else
         {
-            signRequest.Attempts.Add(CreateAttempt(signRequest.Id, SignAttemptType.VerifyFailed, "Введен неверный код подтверждения.", utcNow));
+            AddAttempt(signRequest, SignAttemptType.VerifyFailed, "Введен неверный код подтверждения.", utcNow);
 
             if (signRequest.VerifyAttemptsUsed >= _options.MaxVerifyAttempts)
             {
                 signRequest.Status = SignRequestStatus.Blocked;
-                signRequest.Attempts.Add(CreateAttempt(signRequest.Id, SignAttemptType.Blocked, "Запрос заблокирован по лимиту попыток проверки.", utcNow));
+                AddAttempt(signRequest, SignAttemptType.Blocked, "Запрос заблокирован по лимиту попыток проверки.", utcNow);
             }
         }
 
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await _dbContext.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            return new VerificationResult
+            {
+                IsSuccess = false,
+                Status = signRequest.Status,
+                RemainingAttempts = Math.Max(_options.MaxVerifyAttempts - signRequest.VerifyAttemptsUsed, 0),
+                ErrorMessage = "Запрос уже был изменен другой операцией. Повторите проверку кода."
+            };
+        }
 
         return new VerificationResult
         {
@@ -262,20 +276,35 @@ public sealed class SignService : ISignService
             await sender.SendAsync(message, cancellationToken);
 
             signRequest.Status = SignRequestStatus.CodeSent;
-            signRequest.Attempts.Add(CreateAttempt(
-                signRequest.Id,
+            AddAttempt(
+                signRequest,
                 isResend ? SignAttemptType.Resent : SignAttemptType.Sent,
                 isResend ? "Код подтверждения успешно отправлен повторно." : "Код подтверждения успешно отправлен.",
-                utcNow));
+                utcNow);
         }
         catch (Exception exception)
         {
-            signRequest.Attempts.Add(CreateAttempt(signRequest.Id, SignAttemptType.SendFailed, exception.Message, utcNow));
+            AddAttempt(signRequest, SignAttemptType.SendFailed, exception.Message, utcNow);
             await _dbContext.SaveChangesAsync(cancellationToken);
             throw;
         }
 
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await _dbContext.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            return new SigningResult
+            {
+                IsSuccess = false,
+                RequestId = signRequest.Id,
+                DocumentSignId = signRequest.DocumentSignId,
+                Status = signRequest.Status,
+                ExpiresAtUtc = signRequest.ExpiresAtUtc,
+                ErrorMessage = "Запрос уже был изменен другой операцией. Повторите отправку кода."
+            };
+        }
 
         return new SigningResult
         {
@@ -459,5 +488,19 @@ public sealed class SignService : ISignService
             Details = details,
             CreatedAtUtc = utcNow
         };
+    }
+
+    /// <summary>
+    /// Добавляет новую запись аудита в контекст базы данных и связывает ее с запросом на подписание.
+    /// </summary>
+    /// <param name="signRequest">Запрос на подписание, для которого создается запись аудита.</param>
+    /// <param name="type">Тип события или попытки.</param>
+    /// <param name="details">Дополнительные сведения о событии.</param>
+    /// <param name="utcNow">Текущее время в формате UTC.</param>
+    private void AddAttempt(SignRequest signRequest, SignAttemptType type, string? details, DateTimeOffset utcNow)
+    {
+        var attempt = CreateAttempt(signRequest.Id, type, details, utcNow);
+        attempt.Request = signRequest;
+        _dbContext.Attempts.Add(attempt);
     }
 }

@@ -48,6 +48,8 @@ public sealed class SignDbContext : DbContext
     {
         ArgumentNullException.ThrowIfNull(modelBuilder);
 
+        var isNpgsqlProvider = Database.ProviderName == "Npgsql.EntityFrameworkCore.PostgreSQL";
+
         modelBuilder.HasDefaultSchema(_schema);
 
         modelBuilder.Entity<SignRequest>(builder =>
@@ -59,6 +61,16 @@ public sealed class SignDbContext : DbContext
             builder.Property(x => x.Status).IsRequired();
             builder.Property(x => x.CreatedAtUtc).IsRequired();
             builder.Property(x => x.ExpiresAtUtc).IsRequired();
+
+            if (isNpgsqlProvider)
+            {
+                builder.Property(x => x.Version).IsRowVersion();
+            }
+            else
+            {
+                builder.Ignore(x => x.Version);
+            }
+
             builder.Property(x => x.VerifyAttemptsUsed).IsRequired();
             builder.Property(x => x.SendAttemptsUsed).IsRequired();
             builder.HasIndex(x => x.DocumentSignId);

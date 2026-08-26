@@ -21,4 +21,9 @@ public sealed class VerificationResult
     /// Получает или задает количество оставшихся попыток проверки.
     /// </summary>
     public int RemainingAttempts { get; set; }
+
+    /// <summary>
+    /// Получает или задает текст ошибки бизнес-операции, если проверка не была выполнена.
+    /// </summary>
+    public string? ErrorMessage { get; set; }
 }

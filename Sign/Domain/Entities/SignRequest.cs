@@ -48,6 +48,11 @@ public sealed class SignRequest
     public DateTimeOffset? SignedAtUtc { get; set; }
 
     /// <summary>
+    /// Получает или задает токен конкурентного обновления записи.
+    /// </summary>
+    public uint Version { get; set; }
+
+    /// <summary>
     /// Получает или задает уже использованное число попыток проверки кода.
     /// </summary>
     public int VerifyAttemptsUsed { get; set; }
