@@ -65,6 +65,25 @@ builder.Services.AddSignLibrary(builder.Configuration);
 
 - если `Sign:ConnectionString` пустая, библиотека возьмет строку подключения из `ConnectionStrings:Sign`;
 - `HashPepper` лучше хранить не в файле, а во внешнем хранилище секретов или в переменной окружения.
+- файл с пояснениями по всем настройкам: [appsettings.sign.example.jsonc](/Users/macbook/Documents/Projects/sign/appsettings.sign.example.jsonc)
+
+### Что означает каждая настройка
+
+- `ConnectionStrings:Sign` - запасная строка подключения к базе данных.
+- `Sign:ConnectionString` - основная строка подключения библиотеки.
+- `Sign:Schema` - схема базы данных для таблиц библиотеки.
+- `Sign:CodeLifetime` - время жизни кода подтверждения.
+- `Sign:RetryCount` - сколько раз повторять отправку сообщения при ошибке отправителя.
+- `Sign:RetryInterval` - пауза между повторными попытками отправки сообщения.
+- `Sign:ResendCooldown` - минимальная пауза между отправками нового кода.
+- `Sign:ExtendedResendCooldownAfterAttemptCount` - после какого числа отправок включать увеличенную паузу.
+- `Sign:ExtendedResendCooldown` - увеличенная пауза между отправками после достижения порога.
+- `Sign:MaxVerifyAttempts` - максимальное число попыток ввода кода.
+- `Sign:MaxSendAttempts` - максимальное число отправок кода для одного запроса.
+- `Sign:SmsCodeLength` - длина кода для SMS.
+- `Sign:EmailCodeLength` - длина кода для email.
+- `Sign:HashPepper` - секретное значение для хеширования кода.
+- `Sign:SaltSize` - размер соли в байтах.
 
 ## Миграции
 
