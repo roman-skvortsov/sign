@@ -1,0 +1,98 @@
+# SFN.Sign
+
+Библиотека для подписания документов по SMS и email на `.NET 10`.
+
+Библиотека хранит данные в PostgreSQL, использует свою схему `sign`, ведет журнал отправок и проверок кода, хранит шаблоны сообщений в базе данных и позволяет подключать свои отправители для разных каналов подписания.
+
+## Что умеет
+
+- запускать подписание документа;
+- отправлять код подтверждения по SMS или email;
+- повторно отправлять код с учетом ограничений по попыткам и интервалам;
+- проверять код подтверждения;
+- хранить коды в виде хеша с солью и перцем;
+- хранить шаблоны сообщений в базе данных;
+- применять миграции своей схемы в общей базе данных.
+
+## Подключение
+
+Установите ссылку на проект или пакет `SFN.Sign`, затем зарегистрируйте библиотеку в `Program.cs`.
+
+Важно: для метода `AddSignLibrary(...)` нужен `using SFN.Sign.DependencyInjection;`.
+
+```csharp
+using SFN.Sign.DependencyInjection;
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddSignLibrary(builder.Configuration);
+
+// Пользователь библиотеки должен сам зарегистрировать отправители сообщений.
+// Примеры:
+// builder.Services.AddScoped<ISignChannelSender, SmsSignChannelSender>();
+// builder.Services.AddScoped<ISignChannelSender, EmailSignChannelSender>();
+```
+
+## Пример настроек
+
+Пример `appsettings.json`:
+
+```json
+{
+  "ConnectionStrings": {
+    "Sign": "Host=localhost;Port=5432;Database=app_db;Username=postgres;Password=postgres"
+  },
+  "Sign": {
+    "ConnectionString": "",
+    "Schema": "sign",
+    "CodeLifetime": "00:05:00",
+    "RetryCount": 3,
+    "RetryInterval": "00:00:10",
+    "ResendCooldown": "00:01:00",
+    "ExtendedResendCooldownAfterAttemptCount": 3,
+    "ExtendedResendCooldown": "00:05:00",
+    "MaxVerifyAttempts": 5,
+    "MaxSendAttempts": 3,
+    "SmsCodeLength": 4,
+    "EmailCodeLength": 6,
+    "HashPepper": "your-secret-pepper",
+    "SaltSize": 16
+  }
+}
+```
+
+Примечания:
+
+- если `Sign:ConnectionString` пустая, библиотека возьмет строку подключения из `ConnectionStrings:Sign`;
+- `HashPepper` лучше хранить не в файле, а во внешнем хранилище секретов или в переменной окружения.
+
+## Миграции
+
+Миграции лежат внутри проекта `SFN.Sign`.
+
+Таблицы библиотеки создаются в схеме `sign`, а история миграций хранится в таблице `sign.__SignMigrationsHistory`.
+
+Пример команд:
+
+```bash
+dotnet ef database update --project SFN.Sign/SFN.Sign.csproj --startup-project SFN.Sign/SFN.Sign.csproj
+```
+
+```bash
+dotnet ef migrations add MigrationName --project SFN.Sign/SFN.Sign.csproj --startup-project SFN.Sign/SFN.Sign.csproj --output-dir Infrastructure/Persistence/Migrations
+```
+
+## Структура данных
+
+Библиотека использует таблицы:
+
+- `sign.SignRequests`
+- `sign.SignCodes`
+- `sign.SignAttempts`
+- `sign.MessageTemplates`
+
+## Важно
+
+- Библиотека не содержит HTTP API.
+- Библиотека не отправляет SMS и email сама по себе без ваших реализаций `ISignChannelSender`.
+- Для каждого нового способа отправки можно добавить свою реализацию `ISignChannelSender`.
