@@ -74,14 +74,12 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ISignRequestRepository, SignRequestRepository>();
         services.AddScoped<IMessageTemplateRepository, MessageTemplateRepository>();
         services.AddScoped<ISignService, SignService>();
+        services.AddScoped<ISignChannelSender, SmsSignChannelSender>();
+        services.AddScoped<ISignChannelSender, EmailSignChannelSender>();
         services.AddSingleton<IVerificationCodeProtector, HmacVerificationCodeProtector>();
         services.AddSingleton<ICodeGenerator, NumericCodeGenerator>();
         services.AddSingleton<ITemplateValueProvider, ReflectionTemplateValueProvider>();
         services.AddSingleton<IMessageTemplateRenderer, DefaultMessageTemplateRenderer>();
-
-        // TODO: Пользователь библиотеки должен зарегистрировать собственные реализации ISignChannelSender
-        // для нужных каналов, например EmailSignChannelSender и SmsSignChannelSender.
-        // TODO: На этом уровне библиотека не привязана к конкретным пакетам отправки сообщений.
 
         return services;
     }
