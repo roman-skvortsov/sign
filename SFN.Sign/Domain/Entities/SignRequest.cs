@@ -63,6 +63,11 @@ public sealed class SignRequest
     public int SendAttemptsUsed { get; set; }
 
     /// <summary>
+    /// Дополнительные значения для подстановки в шаблон.
+    /// </summary>
+    public IDictionary<string, string?> TemplateValues { get; set; } = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
     /// Текущий код подтверждения.
     /// </summary>
     public SignCode? SignCode { get; set; }

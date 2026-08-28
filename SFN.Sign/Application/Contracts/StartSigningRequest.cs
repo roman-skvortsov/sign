@@ -21,4 +21,9 @@ public sealed class StartSigningRequest
     /// Адрес получателя кода.
     /// </summary>
     public string Recipient { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Дополнительные значения для подстановки в шаблон.
+    /// </summary>
+    public IDictionary<string, string?> TemplateValues { get; set; } = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase);
 }

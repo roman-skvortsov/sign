@@ -67,6 +67,33 @@ public sealed class SignServiceTests
     }
 
     /// <summary>
+    /// Проверяет, что дополнительные значения подставляются в шаблон и сохраняются в запросе.
+    /// </summary>
+    [Fact]
+    public async Task StartSigningAsync_ShouldUseAndStoreTemplateValues()
+    {
+        await using var scope = await TestSignServiceScope.CreateAsync();
+
+        var result = await scope.StartSigningAsync(new StartSigningRequest
+        {
+            DocumentSignId = Guid.Parse("23222222-2222-2222-2222-222222222222"),
+            Channel = SignChannel.Email,
+            Recipient = "purpose@example.com",
+            TemplateValues = new Dictionary<string, string?>
+            {
+                ["SigningPurpose"] = "Подписание договора"
+            }
+        });
+
+        var request = await scope.GetRequestAsync(result.RequestId);
+        var message = scope.GetLastMessage(SignChannel.Email);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal("Подписание договора", request.TemplateValues["SigningPurpose"]);
+        Assert.Contains("Подписание договора", message.Body);
+    }
+
+    /// <summary>
     /// Проверяет, что повторный запуск подписания для активного запроса возвращает бизнес-ошибку и не создает вторую запись.
     /// </summary>
     [Fact]
@@ -132,7 +159,11 @@ public sealed class SignServiceTests
         {
             DocumentSignId = Guid.Parse("55555555-5555-5555-5555-555555555555"),
             Channel = SignChannel.Email,
-            Recipient = "resend@example.com"
+            Recipient = "resend@example.com",
+            TemplateValues = new Dictionary<string, string?>
+            {
+                ["SigningPurpose"] = "Повторное подписание"
+            }
         });
 
         var requestBeforeResend = await scope.GetRequestAsync(startResult.RequestId);
@@ -152,7 +183,31 @@ public sealed class SignServiceTests
         Assert.Equal(2, scope.EmailSender.SentMessages.Count);
         Assert.Equal(2, requestAfterResend.SendAttemptsUsed);
         Assert.NotEqual(oldSalt, requestAfterResend.SignCode!.CodeSalt);
+        Assert.Equal("Повторное подписание", requestAfterResend.TemplateValues["SigningPurpose"]);
+        Assert.Contains("Повторное подписание", scope.EmailSender.SentMessages.Last().Body);
         Assert.Contains(requestAfterResend.SignAttempts, x => x.Type == SignAttemptType.Resent);
+    }
+
+    /// <summary>
+    /// Проверяет, что нельзя передавать дополнительные значения с зарезервированными именами.
+    /// </summary>
+    [Fact]
+    public async Task StartSigningAsync_ShouldThrowArgumentException_WhenReservedTemplateValueNameIsUsed()
+    {
+        await using var scope = await TestSignServiceScope.CreateAsync();
+
+        var exception = await Assert.ThrowsAsync<ArgumentException>(() => scope.StartSigningAsync(new StartSigningRequest
+        {
+            DocumentSignId = Guid.Parse("99999999-9999-9999-9999-999999999999"),
+            Channel = SignChannel.Sms,
+            Recipient = "+79990000009",
+            TemplateValues = new Dictionary<string, string?>
+            {
+                ["SignCode"] = "1234"
+            }
+        }));
+
+        Assert.Equal("templateValues", exception.ParamName);
     }
 
     /// <summary>

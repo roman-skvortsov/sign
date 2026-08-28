@@ -19,6 +19,16 @@ namespace SFN.Sign.Application.Services;
 /// </summary>
 public sealed class SignService : ISignService
 {
+    private static readonly HashSet<string> ReservedTemplateValueNames = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "DocumentSignId",
+        "RequestId",
+        "Channel",
+        "Recipient",
+        "SignCode",
+        "ExpiresAtUtc"
+    };
+
     private readonly SignDbContext _dbContext;
     private readonly ISignRequestRepository _signRequestRepository;
     private readonly ICodeGenerator _codeGenerator;
@@ -60,6 +70,7 @@ public sealed class SignService : ISignService
     {
         ArgumentNullException.ThrowIfNull(request);
         ArgumentException.ThrowIfNullOrWhiteSpace(request.Recipient);
+        ValidateTemplateValues(request.TemplateValues);
 
         var utcNow = DateTimeOffset.UtcNow;
         var activeRequest = await _signRequestRepository.GetActiveByDocumentSignIdAsync(
@@ -97,6 +108,7 @@ public sealed class SignService : ISignService
             ExpiresAtUtc = utcNow.Add(_options.CodeLifetime),
             VerifyAttemptsUsed = 0,
             SendAttemptsUsed = 0,
+            TemplateValues = CloneTemplateValues(request.TemplateValues),
             SignCode = new SignCode
             {
                 Id = Guid.NewGuid(),
@@ -286,7 +298,8 @@ public sealed class SignService : ISignService
             Channel = signRequest.Channel,
             Recipient = signRequest.Recipient,
             Code = plainCode,
-            ExpiresAtUtc = signRequest.ExpiresAtUtc
+            ExpiresAtUtc = signRequest.ExpiresAtUtc,
+            PlaceholderValues = CloneTemplateValues(signRequest.TemplateValues)
         }, cancellationToken);
 
         try
@@ -524,6 +537,37 @@ public sealed class SignService : ISignService
         var attempt = CreateAttempt(signRequest.Id, type, details, utcNow);
         attempt.SignRequest = signRequest;
         _dbContext.SignAttempts.Add(attempt);
+    }
+
+    /// <summary>
+    /// Проверяет дополнительные значения шаблона.
+    /// </summary>
+    /// <param name="templateValues">Дополнительные значения шаблона.</param>
+    private static void ValidateTemplateValues(IDictionary<string, string?> templateValues)
+    {
+        ArgumentNullException.ThrowIfNull(templateValues);
+
+        foreach (var templateValue in templateValues)
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(templateValue.Key);
+
+            if (ReservedTemplateValueNames.Contains(templateValue.Key))
+            {
+                throw new ArgumentException(
+                    $"Имя '{templateValue.Key}' зарезервировано и не может использоваться как дополнительное значение шаблона.",
+                    nameof(templateValues));
+            }
+        }
+    }
+
+    /// <summary>
+    /// Создает копию дополнительных значений шаблона.
+    /// </summary>
+    /// <param name="templateValues">Исходные значения.</param>
+    /// <returns>Копия словаря значений.</returns>
+    private static IDictionary<string, string?> CloneTemplateValues(IDictionary<string, string?> templateValues)
+    {
+        return new Dictionary<string, string?>(templateValues, StringComparer.OrdinalIgnoreCase);
     }
 
     /// <summary>

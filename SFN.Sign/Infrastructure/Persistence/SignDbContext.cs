@@ -1,7 +1,10 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.Options;
 using SFN.Sign.Domain.Entities;
 using SFN.Sign.Configuration;
+using System.Text.Json;
 
 namespace SFN.Sign.Infrastructure.Persistence;
 
@@ -49,6 +52,19 @@ public sealed class SignDbContext : DbContext
         ArgumentNullException.ThrowIfNull(modelBuilder);
 
         var isNpgsqlProvider = Database.ProviderName == "Npgsql.EntityFrameworkCore.PostgreSQL";
+        var templateValuesConverter = new ValueConverter<IDictionary<string, string?>, string>(
+            value => JsonSerializer.Serialize(value, JsonSerializerOptions.Web),
+            value => string.IsNullOrWhiteSpace(value)
+                ? new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase)
+                : JsonSerializer.Deserialize<Dictionary<string, string?>>(value, JsonSerializerOptions.Web)
+                    ?? new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase));
+        var templateValuesComparer = new ValueComparer<IDictionary<string, string?>>(
+            (left, right) => JsonSerializer.Serialize(left ?? new Dictionary<string, string?>(), JsonSerializerOptions.Web) ==
+                             JsonSerializer.Serialize(right ?? new Dictionary<string, string?>(), JsonSerializerOptions.Web),
+            value => JsonSerializer.Serialize(value ?? new Dictionary<string, string?>(), JsonSerializerOptions.Web).GetHashCode(StringComparison.Ordinal),
+            value => value == null
+                ? new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase)
+                : new Dictionary<string, string?>(value, StringComparer.OrdinalIgnoreCase));
 
         modelBuilder.HasDefaultSchema(_schema);
 
@@ -61,6 +77,18 @@ public sealed class SignDbContext : DbContext
             builder.Property(x => x.Status).IsRequired();
             builder.Property(x => x.CreatedAtUtc).IsRequired();
             builder.Property(x => x.ExpiresAtUtc).IsRequired();
+            builder.Property(x => x.TemplateValues)
+                .HasConversion(templateValuesConverter)
+                .Metadata.SetValueComparer(templateValuesComparer);
+
+            if (isNpgsqlProvider)
+            {
+                builder.Property(x => x.TemplateValues).HasColumnType("jsonb");
+            }
+            else
+            {
+                builder.Property(x => x.TemplateValues).HasColumnType("TEXT");
+            }
 
             if (isNpgsqlProvider)
             {

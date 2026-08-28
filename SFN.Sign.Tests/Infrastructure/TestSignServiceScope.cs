@@ -294,7 +294,7 @@ public sealed class TestSignServiceScope : IAsyncDisposable
                 Channel = SignChannel.Email,
                 TemplateType = MessageTemplateType.SignDocument,
                 SubjectTemplate = "Подписание документа %%DocumentSignId%%",
-                BodyTemplate = "Ваш код подтверждения: %%SignCode%%. Идентификатор запроса: %%RequestId%%.",
+                BodyTemplate = "Ваш код подтверждения: %%SignCode%%. Идентификатор запроса: %%RequestId%%. Цель: %%SigningPurpose%%.",
                 IsActive = true,
                 CreatedAtUtc = utcNow,
                 UpdatedAtUtc = utcNow
