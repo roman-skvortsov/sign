@@ -154,6 +154,13 @@ Sign__HashPepper=your-secret-value
 
 Таблицы библиотеки создаются в схеме `sign`, а история миграций хранится в таблице `sign.__SignMigrationsHistory`.
 
+Для design-time команд EF `SignDbContextFactory` читает настройки только из:
+
+- `User Secrets`;
+- переменных окружения.
+
+Файлы `appsettings.json` и `appsettings.Development.json` в design-time фабрике не используются.
+
 Пример команд:
 
 ```bash

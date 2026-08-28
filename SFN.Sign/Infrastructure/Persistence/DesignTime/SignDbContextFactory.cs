@@ -21,9 +21,6 @@ public sealed class SignDbContextFactory : IDesignTimeDbContextFactory<SignDbCon
     public SignDbContext CreateDbContext(string[] args)
     {
         var configurationBuilder = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.json", optional: true)
-            .AddJsonFile("appsettings.Development.json", optional: true)
             .AddEnvironmentVariables();
 
         AddUserSecrets(configurationBuilder);
