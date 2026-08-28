@@ -64,10 +64,10 @@ public static class ServiceCollectionExtensions
         services.AddDbContext<SignDbContext>((serviceProvider, options) =>
         {
             var signOptions = serviceProvider.GetRequiredService<IOptions<SignOptions>>().Value;
-            ArgumentException.ThrowIfNullOrWhiteSpace(signOptions.ConnectionString);
+            var connectionString = SignConnectionStringResolver.Resolve(signOptions);
 
             options.UseNpgsql(
-                signOptions.ConnectionString,
+                connectionString,
                 npgsqlOptions => npgsqlOptions.MigrationsHistoryTable("__SignMigrationsHistory", signOptions.Schema));
         });
 

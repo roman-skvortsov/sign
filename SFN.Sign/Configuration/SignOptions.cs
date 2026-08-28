@@ -6,7 +6,8 @@ namespace SFN.Sign.Configuration;
 public sealed class SignOptions
 {
     /// <summary>
-    /// Строка подключения к базе данных.
+    /// Строка подключения к базе данных в виде Base64.
+    /// Значение рекомендуется получать из Vault или Secrets.
     /// </summary>
     public string ConnectionString { get; set; } = string.Empty;
 
@@ -67,6 +68,8 @@ public sealed class SignOptions
 
     /// <summary>
     /// Секретное значение для хеширования кода.
+    /// В этой настройке должна быть строка с секретом в Base64.
+    /// Рекомендуемый размер секрета: 32, 48 или 64 байта до кодирования в Base64.
     /// </summary>
     public string HashPepper { get; set; } = string.Empty;
 

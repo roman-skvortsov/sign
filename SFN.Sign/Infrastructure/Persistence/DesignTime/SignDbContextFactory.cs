@@ -31,12 +31,11 @@ public sealed class SignDbContextFactory : IDesignTimeDbContextFactory<SignDbCon
             ?? configuration["ConnectionStrings:Sign"]
             ?? signOptions.ConnectionString;
         signOptions.Schema = configuration["Sign:Schema"] ?? signOptions.Schema;
-
-        ArgumentException.ThrowIfNullOrWhiteSpace(signOptions.ConnectionString);
+        var connectionString = SignConnectionStringResolver.Resolve(signOptions);
 
         var dbContextOptions = new DbContextOptionsBuilder<SignDbContext>()
             .UseNpgsql(
-                signOptions.ConnectionString,
+                connectionString,
                 npgsqlOptions => npgsqlOptions.MigrationsHistoryTable("__SignMigrationsHistory", signOptions.Schema))
             .Options;
 

@@ -64,13 +64,16 @@ builder.Services.AddSignLibrary(builder.Configuration);
 Примечания:
 
 - если `Sign:ConnectionString` пустая, библиотека возьмет строку подключения из `ConnectionStrings:Sign`;
+- библиотека всегда ожидает строку подключения в `Base64` и декодирует ее перед подключением;
 - `HashPepper` лучше хранить не в файле, а во внешнем хранилище секретов или в переменной окружения.
 - файл с пояснениями по всем настройкам: [appsettings.sign.example.jsonc](/Users/macbook/Documents/Projects/sign/appsettings.sign.example.jsonc)
+- строку подключения рекомендуется хранить в `Vault`, а для локальной разработки в `Secrets`;
+- в библиотеке ожидается, что строка подключения хранится в `Base64`.
 
 ### Что означает каждая настройка
 
 - `ConnectionStrings:Sign` - запасная строка подключения к базе данных.
-- `Sign:ConnectionString` - основная строка подключения библиотеки.
+- `Sign:ConnectionString` - строка подключения библиотеки в виде `Base64`.
 - `Sign:Schema` - схема базы данных для таблиц библиотеки.
 - `Sign:CodeLifetime` - время жизни кода подтверждения.
 - `Sign:RetryCount` - сколько раз повторять отправку сообщения при ошибке отправителя.
@@ -82,7 +85,7 @@ builder.Services.AddSignLibrary(builder.Configuration);
 - `Sign:MaxSendAttempts` - максимальное число отправок кода для одного запроса.
 - `Sign:SmsCodeLength` - длина кода для SMS.
 - `Sign:EmailCodeLength` - длина кода для email.
-- `Sign:HashPepper` - секретное значение для хеширования кода.
+- `Sign:HashPepper` - секретное значение для хеширования кода в виде строки `Base64`.
 - `Sign:SaltSize` - размер соли в байтах.
 
 ## Секрет для хеширования
@@ -90,6 +93,8 @@ builder.Services.AddSignLibrary(builder.Configuration);
 Настройка `Sign:HashPepper` является секретом.
 
 Ее лучше не хранить в `appsettings.json` и не коммитить в репозиторий. Рекомендуется передавать это значение через безопасное хранилище секретов или через переменные окружения.
+
+В этой настройке должна быть строка с секретом в `Base64`.
 
 Рекомендуемая длина секрета:
 
@@ -126,6 +131,22 @@ Sign__HashPepper=your-secret-value
 - Secret Manager;
 - переменные окружения CI/CD;
 - секреты хостинга или контейнера.
+
+## Строка подключения
+
+Строку подключения нужно хранить не в файле, а во внешнем секрете. Для рабочего окружения рекомендуется `Vault`, для локальной разработки `Secrets`.
+
+В библиотеке ожидается, что строка подключения хранится в виде `Base64`:
+
+```json
+{
+  "Sign": {
+    "ConnectionString": "SE9zdD1sb2NhbGhvc3Q7RGF0YWJhc2U9YXBwX2RiO1VzZXJuYW1lPXBvc3RncmVzO1Bhc3N3b3JkPXBvc3RncmVz"
+  }
+}
+```
+
+Библиотека сама декодирует это значение перед подключением к PostgreSQL.
 
 ## Миграции
 
