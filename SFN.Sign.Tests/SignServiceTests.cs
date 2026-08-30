@@ -1,4 +1,5 @@
 using SFN.Sign.Application.Contracts;
+using SFN.Sign.Abstractions.Messaging;
 using SFN.Sign.Domain.Enums;
 using SFN.Sign.Tests.Infrastructure;
 
@@ -238,6 +239,35 @@ public sealed class SignServiceTests
         Assert.False(resendResult.IsSuccess);
         Assert.Equal("Достигнуто максимальное количество отправок кода подтверждения.", resendResult.ErrorMessage);
         Assert.Single(scope.SmsSender.SentMessages);
+    }
+
+    /// <summary>
+    /// Проверяет, что ошибка отправки возвращается в результате запуска подписания.
+    /// </summary>
+    [Fact]
+    public async Task StartSigningAsync_ShouldReturnSenderError_WhenSenderReturnsFailure()
+    {
+        await using var scope = await TestSignServiceScope.CreateAsync();
+        scope.SmsSender.ResultFactory = static _ => new SendMessageResult
+        {
+            IsSuccess = false,
+            ErrorCode = "SmsSendingError",
+            ErrorMessage = "Сервис SMS временно недоступен."
+        };
+
+        var result = await scope.StartSigningAsync(new StartSigningRequest
+        {
+            DocumentSignId = Guid.Parse("67666666-6666-6666-6666-666666666666"),
+            Channel = SignChannel.Sms,
+            Recipient = "+79990000006"
+        });
+
+        var request = await scope.GetRequestAsync(result.RequestId);
+
+        Assert.False(result.IsSuccess);
+        Assert.Equal("Сервис SMS временно недоступен.", result.ErrorMessage);
+        Assert.Equal(SignRequestStatus.Pending, request.Status);
+        Assert.Contains(request.SignAttempts, x => x.Type == SignAttemptType.SendFailed);
     }
 
     /// <summary>

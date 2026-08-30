@@ -33,8 +33,8 @@ public sealed class CapturingSignChannelSender : ISignChannelSender
     /// </summary>
     /// <param name="message">Сообщение для отправки.</param>
     /// <param name="cancellationToken">Токен отмены операции.</param>
-    /// <returns>Завершенная задача.</returns>
-    public Task SendAsync(SignMessage message, CancellationToken cancellationToken = default)
+    /// <returns>Результат отправки.</returns>
+    public Task<SendMessageResult> SendAsync(SignMessage message, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(message);
 
@@ -46,6 +46,14 @@ public sealed class CapturingSignChannelSender : ISignChannelSender
             Body = message.Body
         });
 
-        return Task.CompletedTask;
+        return Task.FromResult(ResultFactory(message));
     }
+
+    /// <summary>
+    /// Получает или задает фабрику результата отправки.
+    /// </summary>
+    public Func<SignMessage, SendMessageResult> ResultFactory { get; set; } = static _ => new SendMessageResult
+    {
+        IsSuccess = true
+    };
 }

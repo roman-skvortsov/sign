@@ -21,6 +21,6 @@ public interface ISignChannelSender
     /// </summary>
     /// <param name="message">Готовое сообщение.</param>
     /// <param name="cancellationToken">Токен отмены операции.</param>
-    /// <returns>Задача отправки.</returns>
-    Task SendAsync(SignMessage message, CancellationToken cancellationToken = default);
+    /// <returns>Результат отправки.</returns>
+    Task<SendMessageResult> SendAsync(SignMessage message, CancellationToken cancellationToken = default);
 }

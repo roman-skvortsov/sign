@@ -21,6 +21,8 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" />
     <PackageReference Include="Microsoft.Extensions.Options" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+    <PackageReference Include="SFN.ApiClients.DPV" />
+    <PackageReference Include="SFN.ApiClients.SMS" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(ManagePackageVersionsCentrally)' != 'true'">

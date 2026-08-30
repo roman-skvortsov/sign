@@ -25,13 +25,16 @@ using SFN.Sign.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddSmsApiClient(builder.Configuration);
+builder.Services.AddDpvApiClient(builder.Configuration);
 builder.Services.AddSignLibrary(builder.Configuration);
-
-// Пользователь библиотеки должен сам зарегистрировать отправители сообщений.
-// Примеры:
-// builder.Services.AddScoped<ISignChannelSender, SmsSignChannelSender>();
-// builder.Services.AddScoped<ISignChannelSender, EmailSignChannelSender>();
 ```
+
+Важно:
+
+- `AddSmsApiClient(builder.Configuration)` регистрирует `ISmsApiClient`;
+- `AddDpvApiClient(builder.Configuration)` регистрирует `IDpvApiClient`;
+- `AddSignLibrary(builder.Configuration)` регистрирует сервис подписания и отправители, которые используют эти клиенты.
 
 ## Пример настроек
 
@@ -183,5 +186,5 @@ dotnet ef migrations add MigrationName --project SFN.Sign/SFN.Sign.csproj --star
 ## Важно
 
 - Библиотека не содержит HTTP API.
-- Библиотека не отправляет SMS и email сама по себе без ваших реализаций `ISignChannelSender`.
+- Для работы отправки нужно заранее зарегистрировать `AddSmsApiClient(builder.Configuration)` и `AddDpvApiClient(builder.Configuration)`.
 - Для каждого нового способа отправки можно добавить свою реализацию `ISignChannelSender`.

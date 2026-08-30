@@ -23,6 +23,16 @@ public sealed class VerifyCodeResult
     public int RemainingAttempts { get; set; }
 
     /// <summary>
+    /// Сколько попыток проверки кода осталось.
+    /// </summary>
+    public int RemainingVerifyAttempts { get; set; }
+
+    /// <summary>
+    /// Сколько попыток отправки осталось.
+    /// </summary>
+    public int RemainingSendAttempts { get; set; }
+
+    /// <summary>
     /// Текст ошибки, если код не удалось проверить.
     /// </summary>
     public string? ErrorMessage { get; set; }

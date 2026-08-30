@@ -38,6 +38,16 @@ public sealed class StartSigningResult
     public string? ErrorMessage { get; set; }
 
     /// <summary>
+    /// Сколько попыток отправки осталось.
+    /// </summary>
+    public int RemainingSendAttempts { get; set; }
+
+    /// <summary>
+    /// Сколько попыток проверки кода осталось.
+    /// </summary>
+    public int RemainingVerifyAttempts { get; set; }
+
+    /// <summary>
     /// Время, когда отправка снова станет доступна.
     /// </summary>
     public DateTimeOffset? NextAvailableAtUtc { get; set; }

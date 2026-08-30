@@ -88,7 +88,9 @@ public sealed class SignService : ISignService
                 DocumentSignId = activeRequest.DocumentSignId,
                 Status = activeRequest.Status,
                 ExpiresAtUtc = activeRequest.ExpiresAtUtc,
-                ErrorMessage = "Для документа уже существует активный запрос на подписание. Для повторной отправки используйте существующий RequestId."
+                ErrorMessage = "Для документа уже существует активный запрос на подписание. Для повторной отправки используйте существующий RequestId.",
+                RemainingSendAttempts = GetRemainingSendAttempts(activeRequest),
+                RemainingVerifyAttempts = GetRemainingVerifyAttempts(activeRequest)
             };
         }
 
@@ -132,6 +134,8 @@ public sealed class SignService : ISignService
             Status = sendCodeResult.Status,
             ExpiresAtUtc = sendCodeResult.ExpiresAtUtc,
             ErrorMessage = sendCodeResult.ErrorMessage,
+            RemainingSendAttempts = sendCodeResult.RemainingSendAttempts,
+            RemainingVerifyAttempts = sendCodeResult.RemainingVerifyAttempts,
             NextAvailableAtUtc = sendCodeResult.NextAvailableAtUtc
         };
     }
@@ -188,6 +192,8 @@ public sealed class SignService : ISignService
                 IsSuccess = false,
                 Status = signRequest.Status,
                 RemainingAttempts = Math.Max(_options.MaxVerifyAttempts - signRequest.VerifyAttemptsUsed, 0),
+                RemainingVerifyAttempts = GetRemainingVerifyAttempts(signRequest),
+                RemainingSendAttempts = GetRemainingSendAttempts(signRequest),
                 ErrorMessage = "Запрос уже был изменен другой операцией. Повторите проверку кода."
             };
         }
@@ -196,7 +202,9 @@ public sealed class SignService : ISignService
         {
             IsSuccess = isValid,
             Status = signRequest.Status,
-            RemainingAttempts = Math.Max(_options.MaxVerifyAttempts - signRequest.VerifyAttemptsUsed, 0)
+            RemainingAttempts = Math.Max(_options.MaxVerifyAttempts - signRequest.VerifyAttemptsUsed, 0),
+            RemainingVerifyAttempts = GetRemainingVerifyAttempts(signRequest),
+            RemainingSendAttempts = GetRemainingSendAttempts(signRequest)
         };
     }
 
@@ -212,7 +220,9 @@ public sealed class SignService : ISignService
             return new ResendCodeResult
             {
                 IsSuccess = false,
-                ErrorMessage = "Запрос на подписание не найден."
+                ErrorMessage = "Запрос на подписание не найден.",
+                RemainingSendAttempts = 0,
+                RemainingVerifyAttempts = 0
             };
         }
 
@@ -229,6 +239,8 @@ public sealed class SignService : ISignService
                 Status = signRequest.Status,
                 ExpiresAtUtc = signRequest.ExpiresAtUtc,
                 ErrorMessage = sendAvailability.ErrorMessage,
+                RemainingSendAttempts = GetRemainingSendAttempts(signRequest),
+                RemainingVerifyAttempts = GetRemainingVerifyAttempts(signRequest),
                 NextAvailableAtUtc = sendAvailability.NextAvailableAtUtc
             };
         }
@@ -254,6 +266,8 @@ public sealed class SignService : ISignService
             Status = sendCodeResult.Status,
             ExpiresAtUtc = sendCodeResult.ExpiresAtUtc,
             ErrorMessage = sendCodeResult.ErrorMessage,
+            RemainingSendAttempts = sendCodeResult.RemainingSendAttempts,
+            RemainingVerifyAttempts = sendCodeResult.RemainingVerifyAttempts,
             NextAvailableAtUtc = sendCodeResult.NextAvailableAtUtc
         };
     }
@@ -305,10 +319,30 @@ public sealed class SignService : ISignService
         try
         {
             var sender = ResolveSender(signRequest.Channel);
+            var sendResult = await sender.SendAsync(message, cancellationToken);
 
-            // TODO: Здесь будет вызываться реальная отправка через Email/Sms-реализации ISignChannelSender,
-            // которые должны быть зарегистрированы в DI пользователем библиотеки.
-            await sender.SendAsync(message, cancellationToken);
+            if (!sendResult.IsSuccess)
+            {
+                AddAttempt(
+                    signRequest,
+                    SignAttemptType.SendFailed,
+                    sendResult.ErrorMessage ?? "При отправке сообщения произошла ошибка.",
+                    utcNow);
+
+                await _dbContext.SaveChangesAsync(cancellationToken);
+
+                return new SendCodeResult
+                {
+                    IsSuccess = false,
+                    RequestId = signRequest.Id,
+                    DocumentSignId = signRequest.DocumentSignId,
+                    Status = signRequest.Status,
+                    ExpiresAtUtc = signRequest.ExpiresAtUtc,
+                    RemainingSendAttempts = GetRemainingSendAttempts(signRequest),
+                    RemainingVerifyAttempts = GetRemainingVerifyAttempts(signRequest),
+                    ErrorMessage = sendResult.ErrorMessage ?? "При отправке сообщения произошла ошибка."
+                };
+            }
 
             signRequest.Status = SignRequestStatus.CodeSent;
             AddAttempt(
@@ -337,6 +371,8 @@ public sealed class SignService : ISignService
                 DocumentSignId = signRequest.DocumentSignId,
                 Status = signRequest.Status,
                 ExpiresAtUtc = signRequest.ExpiresAtUtc,
+                RemainingSendAttempts = GetRemainingSendAttempts(signRequest),
+                RemainingVerifyAttempts = GetRemainingVerifyAttempts(signRequest),
                 ErrorMessage = "Запрос уже был изменен другой операцией. Повторите отправку кода."
             };
         }
@@ -347,7 +383,9 @@ public sealed class SignService : ISignService
             RequestId = signRequest.Id,
             DocumentSignId = signRequest.DocumentSignId,
             Status = signRequest.Status,
-            ExpiresAtUtc = signRequest.ExpiresAtUtc
+            ExpiresAtUtc = signRequest.ExpiresAtUtc,
+            RemainingSendAttempts = GetRemainingSendAttempts(signRequest),
+            RemainingVerifyAttempts = GetRemainingVerifyAttempts(signRequest)
         };
     }
 
@@ -571,6 +609,26 @@ public sealed class SignService : ISignService
     }
 
     /// <summary>
+    /// Возвращает остаток попыток отправки.
+    /// </summary>
+    /// <param name="signRequest">Запрос на подписание.</param>
+    /// <returns>Оставшееся количество попыток отправки.</returns>
+    private int GetRemainingSendAttempts(SignRequest signRequest)
+    {
+        return Math.Max(_options.MaxSendAttempts - signRequest.SendAttemptsUsed, 0);
+    }
+
+    /// <summary>
+    /// Возвращает остаток попыток проверки кода.
+    /// </summary>
+    /// <param name="signRequest">Запрос на подписание.</param>
+    /// <returns>Оставшееся количество попыток проверки кода.</returns>
+    private int GetRemainingVerifyAttempts(SignRequest signRequest)
+    {
+        return Math.Max(_options.MaxVerifyAttempts - signRequest.VerifyAttemptsUsed, 0);
+    }
+
+    /// <summary>
     /// Представляет внутренний результат отправки кода подтверждения.
     /// </summary>
     private sealed class SendCodeResult
@@ -599,6 +657,16 @@ public sealed class SignService : ISignService
         /// Получает или задает дату и время истечения кода.
         /// </summary>
         public DateTimeOffset ExpiresAtUtc { get; set; }
+
+        /// <summary>
+        /// Получает или задает количество оставшихся попыток отправки.
+        /// </summary>
+        public int RemainingSendAttempts { get; set; }
+
+        /// <summary>
+        /// Получает или задает количество оставшихся попыток проверки.
+        /// </summary>
+        public int RemainingVerifyAttempts { get; set; }
 
         /// <summary>
         /// Получает или задает текст ошибки бизнес-операции.
